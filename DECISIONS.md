@@ -451,3 +451,36 @@ from a literal reading of `todo.md` or from an initial default:
    since they described an aspirational API that never matched the
    actual code (this is *how* several of the pre-existing test failures
    happened) and would mislead a reader if presented as current.
+
+## 2026-08-11 — CI ran out of disk space on GitHub's runner
+
+**Problem:** the CI workflow's `pip install -r requirements.txt` failed
+with `OSError: [Errno 28] No space left on device` on GitHub's hosted
+runner (~14GB free by default). Cause was the same one already fixed for
+the Docker image, just not applied to CI: `requirements.txt` bundled
+`torch` with no CPU-only index, so it pulled the full CUDA/cuDNN wheel
+set (`nvidia-cusparse`, `nvidia-cudnn-cu13`, `nvidia-cublas`, etc.) --
+plus `tensorflow`, `dvc`'s large dependency tree (`scmrepo`, `dulwich`,
+`pygit2`, `gto`, `celery`'s stack, ...), and `jupyter`/`jupyterlab`'s
+own large tree, none of which the test suite actually needs.
+
+**Fix:** confirmed first, not assumed -- `grep` shows `torch`/`transformers`
+are only ever imported lazily inside
+`src/data/sentiment_data.py`'s FinBERT loader (with a caught
+`ImportError` falling back to synthetic sentiment), and
+`tests/test_data.py::TestSentimentDataFetcher` only exercises init/config,
+never the real model path. Uninstalled `torch`/`transformers`/
+`tensorflow`/`sentencepiece` from the local dev environment entirely and
+reran the full suite: **88 passed**, unchanged. That confirmed none of
+them are actually required for the pipeline to be correct or the tests
+to pass -- only for the *real* (non-fallback) behaviour.
+
+Split `requirements.txt` into three files: `requirements.txt` (lean
+core -- what CI, `run.sh`, and the test suite need),
+`requirements-optional.txt` (torch/transformers/sentencepiece/tensorflow
+-- real FinBERT + real autoencoder selection instead of their fallbacks),
+`requirements-dev.txt` (jupyter/ipykernel + dvc, none of which are ever
+imported from Python code -- dvc is a standalone CLI tool). CI now
+installs only the lean core; the Dockerfile installs core + optional
+(production wants real sentiment scoring) with the CPU-torch fix moved
+up to apply to both files at once.

@@ -1,0 +1,22 @@
+# Heavy ML dependencies with a designed graceful fallback when absent --
+# install these for the *real* behaviour; the pipeline and tests work
+# without them (synthetic sentiment / PCA selection instead).
+#
+#   pip install -r requirements.txt -r requirements-optional.txt
+#
+# On Linux, prefer the CPU-only torch build unless you actually have a
+# GPU and want it used (the default PyPI wheel pulls several GB of CUDA
+# libraries otherwise):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+# NLP / sentiment (src/data/sentiment_data.py -- real FinBERT scoring;
+# falls back to template-based synthetic headlines + rule-based scoring
+# without these)
+transformers>=4.35.0
+torch>=2.1.0
+sentencepiece>=0.1.99
+
+# Autoencoder stock selection in the legacy replication mode
+# (src/construction/selection.py, scripts/legacy_replication.py --
+# falls back to PCA without it)
+tensorflow>=2.15.0; python_version < "3.13"

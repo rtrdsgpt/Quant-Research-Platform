@@ -20,13 +20,18 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY requirements.txt requirements-optional.txt ./
 RUN pip install --no-cache-dir --upgrade pip \
     # CPU-only torch build -- the default PyPI wheel drags in several GB
     # of CUDA/cuDNN libraries that are dead weight on a CPU-only image
-    # (FinBERT sentiment scoring here never touches a GPU).
+    # (FinBERT sentiment scoring here never touches a GPU). Installed
+    # explicitly first so the -r installs below see it already satisfied
+    # and don't pull the CUDA build in its place.
     && pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
-    && pip install --no-cache-dir -r requirements.txt
+    # requirements-optional.txt: real FinBERT sentiment + real
+    # autoencoder stock selection, not just their synthetic/PCA
+    # fallbacks -- worth having in the production image.
+    && pip install --no-cache-dir -r requirements.txt -r requirements-optional.txt
 
 COPY . .
 

@@ -69,6 +69,23 @@ docker run --rm -v $(pwd)/data:/app/data -v $(pwd)/models:/app/models \
   quant-research-platform --full
 ```
 
+### Dependencies
+
+`requirements.txt` is the lean core (what `run.sh`, CI, and the test
+suite need) — sentiment scoring and the legacy replication mode's
+autoencoder selection both have a designed synthetic/PCA fallback when
+their heavier libraries aren't installed. Two more files layer on top:
+
+```bash
+pip install -r requirements.txt                        # core (default)
+pip install -r requirements.txt -r requirements-optional.txt  # + real FinBERT sentiment, real autoencoder selection
+pip install -r requirements.txt -r requirements-dev.txt       # + jupyter, dvc
+```
+
+The Docker image installs `requirements.txt` + `requirements-optional.txt`
+(with a CPU-only torch build — see [Docker](#docker)). CI installs only
+`requirements.txt`.
+
 ### Configuration
 
 Everything is in [`config/config.yaml`](config/config.yaml): stock universe, date ranges, model

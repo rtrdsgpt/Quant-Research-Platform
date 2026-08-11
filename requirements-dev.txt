@@ -1,0 +1,11 @@
+# Local development / ops tooling -- not imported by src/ or tests/, so
+# not needed in CI or the Docker image.
+#
+#   pip install -r requirements.txt -r requirements-dev.txt
+
+jupyter>=1.0.0
+ipykernel>=6.25.0
+
+# CLI tool for `dvc add` / `dvc push` / `dvc pull` (see .dvc/config,
+# data/*.dvc) -- never imported from Python code.
+dvc>=3.50.0
