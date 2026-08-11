@@ -84,15 +84,29 @@ Data Collection      Feature Engineering    Model Training (walk-forward CV)    
   ensemble (LightGBM/XGBoost/Ridge) with 5-day-purge expanding-window
   walk-forward CV ([`src/models/walk_forward.py`](src/models/walk_forward.py)), plus a SARIMAX
   baseline ([`src/models/sarimax_model.py`](src/models/sarimax_model.py)) CV'd on the same folds for direct
-  comparison (not blended into the ensemble).
+  comparison (not blended into the ensemble). Trained on 134 features
+  per ticker (135th column is `Target`, the label — next-day log
+  return), built by [`src/features/feature_pipeline.py`](src/features/feature_pipeline.py):
+
+  | Category | Count | Examples |
+  |---|---|---|
+  | Technical | 50 | Log returns (+6 lags), SMA/EMA (5/10/20/50) + price ratios, RSI-14, MACD/signal/histogram, ROC/momentum, realized vol (5/10/21/63d), ATR-14, Bollinger bands, Parkinson vol, volume (OBV, VWAP proxy, volume ratio), candlestick shape |
+  | Fundamental | 14 | P/E, D/E, ROE, EPS, book value, market cap, dividend yield, + QoQ changes in each, earnings yield, P/E-relative-to-mean, a composite quality score |
+  | Macro | 55 | 7 raw indicators (USD/INR, crude, gold, Nifty50, India VIX, 10Y yield, inflation) × {return, 5d/21d change, 20d MA, deviation-from-MA, 21d vol} = 35, + 6 regime flags (risk-on/off, oil regime, currency stress, rate regime, VIX level/change) |
+  | Sentiment | 15 | FinBERT score + pos/neg/neutral probabilities, 5d/10d sentiment MA, sentiment trend/z-score/5d change/10d vol, high/low-sentiment flags, headline-count MA, high-activity flag |
+
+  RFE then cuts this down to the top 30 per ticker before training (see
+  [`src/models/feature_selection.py`](src/models/feature_selection.py)).
 - **Construct**: [`src/construction/alpha_portfolio.py`](src/construction/alpha_portfolio.py) turns the ensemble's
   predicted returns into portfolio weights via a mean-variance
   alpha-maximizing objective or Hierarchical Risk Parity
   ([`src/construction/weighting.py`](src/construction/weighting.py)) — replacing the original
   portfolio-replication project's "track the S&P 500" objective with
-  alpha maximization on the 6-stock forecasting universe. See
-  [Scope](#scope) for why the original large-universe replication mode
-  is kept but separate, not merged into this path.
+  alpha maximization on the 6-stock forecasting universe. **Nothing is
+  being replicated here or in the backtest step below** — there's no
+  benchmark index anywhere in this path, forecast-driven or `--benchmark`
+  baseline alike. The only place index replication still happens is the
+  separate, disconnected legacy mode — see [Scope](#scope).
 - **Backtest**: [`src/backtest/backtester.py`](src/backtest/backtester.py) simulates day-by-day rebalancing with
   transaction costs and reports Sharpe/Sortino/Calmar/Max-Drawdown/Hit-Ratio
   ([`src/backtest/metrics.py`](src/backtest/metrics.py)); [`src/backtest/benchmarks.py`](src/backtest/benchmarks.py) reruns it
