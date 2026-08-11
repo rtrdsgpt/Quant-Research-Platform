@@ -522,3 +522,27 @@ previously took down the process. Left `n_jobs=-1` alone on the
 only once per ticker rather than ~16 times back to back, so they don't
 hit the same repeated-churn trigger, and there's no evidence (crash log
 or otherwise) implicating them.
+
+## 2026-08-11 — README/LICENSE brought in line with the rest of the portfolio
+
+Repo owner asked for the README, LICENSE, and "features" (clarified via
+a direct question -- documentation style only, not literally adding
+RAG/SLM functionality, which would have reversed the "explicitly out of
+scope" call in `todo.md`) to match the house style used across the
+portfolio's other repos (`Legal SLM SFT`, `Financial Anomaly Detection
+Using RAG`). Read both of those repos' actual README.md/LICENSE files
+rather than guessing at the convention: badges (CI/License/Python
+version) -> Table of Contents -> **Results** (real numbers, explicit
+about what's stale or not-yet-run rather than filled in) -> Architecture
+-> Setup -> Usage -> Testing -> **Scope** (what's deliberately excluded,
+and why) -> License. Added `LICENSE` (MIT, `Copyright (c) 2026 rtrdsgpt`,
+identical text to the other two repos) and rewrote `README.md` into that
+structure.
+
+**Kept honest under the new "Results" heading specifically:** the
+checked-in `reports/performance_report.txt` numbers are real, but they're
+from the *original* `inverse_volatility` construction method, not the
+new default (`alpha_hrp`) this merge introduced -- said so explicitly,
+with the exact command to regenerate a current comparison, rather than
+either deleting the historical numbers or implying they describe the
+current default's behavior.

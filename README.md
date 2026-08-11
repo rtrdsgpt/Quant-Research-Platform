@@ -1,17 +1,71 @@
 # Quant Research Platform
 
+[![CI](https://github.com/rtrdsgpt/Quant-Research-Platform/actions/workflows/ci.yml/badge.svg)](https://github.com/rtrdsgpt/Quant-Research-Platform/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+
 Forecast → construct → backtest: a walk-forward ML return-forecasting
 ensemble (LightGBM/XGBoost/Ridge, benchmarked against a SARIMAX baseline)
 feeding a cvxpy/HRP portfolio-construction and backtesting layer, served
 over a FastAPI API and tracked with MLflow/DVC.
 
-This is a merge of two prior academic group projects — **Return
-Forecasting and Portfolio Management** and **Portfolio Replication**
-(see [`docs/original-coursework/`](docs/original-coursework/) for the
-originals and group rosters) — into one flagship pipeline, extended
-independently afterward with the API/MLOps layer described below. See
-[`DECISIONS.md`](DECISIONS.md) for the full log of merge decisions,
-problems found, and how they were resolved.
+Merge of two prior academic group projects — **Return Forecasting and
+Portfolio Management** and **Portfolio Replication** (see
+[`docs/original-coursework/`](docs/original-coursework/) for the originals and
+group rosters) — into one pipeline. This repo carries no shared git
+history with either; the merge, API layer, and MLOps additions are
+independent work, done after both courses concluded.
+
+## Table of Contents
+
+- [Results](#results)
+- [Architecture](#architecture)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Testing](#testing)
+- [Scope](#scope)
+- [License](#license)
+
+## Results
+
+**One real, measured number** — everything else below is either a
+historical run under a construction method that is no longer the
+default, or explicitly marked as not yet run, rather than filled in with
+a plausible-looking guess.
+
+A forward-test (Oct–Dec 2025) under the original `inverse_volatility`
+construction method — real output of `PortfolioMetrics.compute_all_metrics`,
+checked in at [`reports/performance_report.txt`](reports/performance_report.txt):
+
+| Metric | Value |
+|---|---|
+| Annualised Return | 28.0916% |
+| Annualised Volatility | 8.0649% |
+| Sharpe Ratio | 2.3049 |
+| Sortino Ratio | 5.3842 |
+| Maximum Drawdown | 2.6950% |
+| Hit Ratio | 54.0984% |
+| Calmar Ratio | 10.4238 |
+
+(The source README this came from had a copy-paste bug — Max Drawdown and
+Hit Ratio were both shown as `2.3049`, the Sharpe ratio's value. Fixed
+here; see [`DECISIONS.md`](DECISIONS.md).)
+
+**Not yet run in this repo: a benchmark comparison under the current
+default** (`portfolio.method: alpha_hrp` — the forecast-driven
+construction this merge actually added, see [Architecture](#architecture)
+below) **against equal-weight / mean-variance / alpha_markowitz.** The
+table above predates that default changing. `src/backtest/benchmarks.py`
++ `main.py --benchmark` exist specifically to produce it —
+
+```bash
+./run.sh --backtest-only --benchmark   # writes reports/benchmark_comparison.txt
+```
+
+— but generating it requires a full local run of the pipeline (data
+fetch + walk-forward CV training), which hasn't completed end-to-end in
+this environment yet. This section gets updated with that table once it
+has, not before.
 
 ## Architecture
 
@@ -34,34 +88,46 @@ Data Collection      Feature Engineering    Model Training (walk-forward CV)    
 - **Construct**: [`src/construction/alpha_portfolio.py`](src/construction/alpha_portfolio.py) turns the ensemble's
   predicted returns into portfolio weights via a mean-variance
   alpha-maximizing objective or Hierarchical Risk Parity
-  ([`src/construction/weighting.py`](src/construction/weighting.py)), replacing the original
+  ([`src/construction/weighting.py`](src/construction/weighting.py)) — replacing the original
   portfolio-replication project's "track the S&P 500" objective with
-  alpha maximization. [`src/backtest/benchmarks.py`](src/backtest/benchmarks.py) compares it against
-  equal-weight and mean-variance baselines.
+  alpha maximization on the 6-stock forecasting universe. See
+  [Scope](#scope) for why the original large-universe replication mode
+  is kept but separate, not merged into this path.
 - **Backtest**: [`src/backtest/backtester.py`](src/backtest/backtester.py) simulates day-by-day rebalancing with
   transaction costs and reports Sharpe/Sortino/Calmar/Max-Drawdown/Hit-Ratio
-  ([`src/backtest/metrics.py`](src/backtest/metrics.py)).
-- A large-universe "replicate an index" mode from the original
-  portfolio-replication project (LASSO/autoencoder sparse selection vs. a
-  benchmark, rolling-CV sparsity search) is preserved as an optional,
-  separate entrypoint: [`scripts/legacy_replication.py`](scripts/legacy_replication.py).
+  ([`src/backtest/metrics.py`](src/backtest/metrics.py)); [`src/backtest/benchmarks.py`](src/backtest/benchmarks.py) reruns it
+  across construction methods for the comparison in [Results](#results).
+- **API**: [`src/api/main.py`](src/api/main.py) (FastAPI) — `POST /forecast/{ticker}`, `POST /portfolio/construct`,
+  `POST /backtest` + `GET /backtest/{run_id}` — reads the pipeline's own
+  cached staged artifacts rather than fetching/training inline.
+- **MLOps**: `Dockerfile` + `run.sh` entrypoint · GitHub Actions CI
+  (`.github/workflows/ci.yml`) · MLflow fold-level logging
+  (`src/tracking.py`, `--mlflow`) · DVC-tracked `data/{raw,features,processed}`
+  · a 3-task Airflow DAG (`airflow/dags/`) mirroring the CLI's own
+  staging. Full rationale (including a segfault and a CI disk-space
+  failure hit and fixed along the way) in [`DECISIONS.md`](DECISIONS.md).
 
-## Quick start
+## Setup
 
 ```bash
-git clone <this-repo-url>
+git clone https://github.com/rtrdsgpt/Quant-Research-Platform.git
 cd Quant-Research-Platform
 
 ./run.sh --full          # creates a venv, installs deps, runs the full pipeline
-# or, staged:
-./run.sh --data-only
-./run.sh --train-only        # add --mlflow to log walk-forward CV to MLflow
-./run.sh --backtest-only     # add --benchmark to compare vs. baselines
-
-./run.sh api              # start the FastAPI service on :8000
 ```
 
-Or with Docker (see [Docker](#docker) below):
+`requirements.txt` is the lean core (what `run.sh`, CI, and the test
+suite need). Two more files layer on top — neither is required for the
+pipeline to run correctly, only for its designed synthetic/PCA fallbacks
+to be replaced with the real thing:
+
+```bash
+pip install -r requirements.txt                                # core (default)
+pip install -r requirements.txt -r requirements-optional.txt   # + real FinBERT sentiment, real autoencoder selection
+pip install -r requirements.txt -r requirements-dev.txt        # + jupyter, dvc
+```
+
+Or with Docker (installs core + optional, CPU-only torch build):
 
 ```bash
 docker build -t quant-research-platform .
@@ -69,60 +135,31 @@ docker run --rm -v $(pwd)/data:/app/data -v $(pwd)/models:/app/models \
   quant-research-platform --full
 ```
 
-### Dependencies
-
-`requirements.txt` is the lean core (what `run.sh`, CI, and the test
-suite need) — sentiment scoring and the legacy replication mode's
-autoencoder selection both have a designed synthetic/PCA fallback when
-their heavier libraries aren't installed. Two more files layer on top:
-
-```bash
-pip install -r requirements.txt                        # core (default)
-pip install -r requirements.txt -r requirements-optional.txt  # + real FinBERT sentiment, real autoencoder selection
-pip install -r requirements.txt -r requirements-dev.txt       # + jupyter, dvc
-```
-
-The Docker image installs `requirements.txt` + `requirements-optional.txt`
-(with a CPU-only torch build — see [Docker](#docker)). CI installs only
-`requirements.txt`.
-
-### Configuration
-
-Everything is in [`config/config.yaml`](config/config.yaml): stock universe, date ranges, model
-hyperparameters (including the SARIMAX baseline's `order`/`seasonal_order`),
-portfolio construction method (`portfolio.method`, e.g. `alpha_hrp`,
-`alpha_markowitz`, `equal_weight`, `mean_variance`, ...), MLflow tracking
-URI, and the `construction:` section governing the forecast → weighting
-integration.
-
 For real news sentiment (instead of synthetic headlines), set
 `GNEWS_API_KEY` / `FINNHUB_API_KEY` as environment variables, or under
-`sentiment:` in the config.
+`sentiment:` in [`config/config.yaml`](config/config.yaml).
 
-## API
-
-[`src/api/main.py`](src/api/main.py) — FastAPI service reusing the pipeline's cached, staged
-artifacts (feature matrices, trained models, OHLCV cache) as its
-"internal job stages", per the pipeline's own `--data-only`/`--train-only`/
-`--backtest-only` staging. Requires the pipeline to have been run at
-least once so those artifacts exist.
+## Usage
 
 ```bash
-uvicorn src.api.main:app --reload
-```
+./run.sh --data-only
+./run.sh --train-only        # rebuilds features from cached raw data, retrains -- skips re-fetching
+./run.sh --train-only --mlflow   # + log every walk-forward fold/model variant to MLflow
+./run.sh --backtest-only     # requires --train-only (or --full) to have completed first
+./run.sh --backtest-only --benchmark   # + compare vs. equal-weight/mean-variance baselines
+./run.sh --step 3            # resume from a specific step (1-4)
 
-| Endpoint | Method | Purpose |
-|---|---|---|
-| `/health` | GET | Liveness check |
-| `/forecast/{ticker}` | POST | Latest predicted return for one ticker |
-| `/portfolio/construct` | POST | Build weights from an alpha signal (defaults to the latest cached predictions) |
-| `/backtest` | POST | Start an async forward-test backtest job, returns a `run_id` |
-| `/backtest/{run_id}` | GET | Poll a backtest job's status/result |
+./run.sh api                  # start the FastAPI service on :8000
+```
 
 ```bash
 curl -X POST localhost:8000/forecast/RELIANCE.NS
 curl -X POST localhost:8000/portfolio/construct -H 'Content-Type: application/json' -d '{}'
 ```
+
+Config (stock universe, date ranges, model hyperparameters including the
+SARIMAX baseline's `order`/`seasonal_order`, `portfolio.method`, MLflow
+tracking URI) all lives in [`config/config.yaml`](config/config.yaml).
 
 ## Testing
 
@@ -130,92 +167,51 @@ curl -X POST localhost:8000/portfolio/construct -H 'Content-Type: application/js
 pytest tests/ -v --cov=src --cov-report=term-missing
 ```
 
-88 tests: unit coverage of every data/feature/model/construction/backtest
-module, the forecast → construct wiring (`tests/test_construction.py`),
-the SARIMAX baseline (walk-forward CV integration, sklearn-compatibility),
-MLflow logging (`tests/test_tracking.py`), and the API
-(`tests/test_api.py` — data-dependent tests skip cleanly if no cached
-pipeline artifacts exist yet, rather than failing on a fresh clone).
+88 tests, offline/mocked where the real thing would need network or a
+multi-hour training run: unit coverage of every data/feature/model/
+construction/backtest module, the forecast → construct wiring
+(`tests/test_construction.py`), the SARIMAX baseline (walk-forward CV
+integration, sklearn-compatibility), MLflow logging
+(`tests/test_tracking.py`), and the API (`tests/test_api.py` — the
+data-dependent tests skip cleanly on a fresh clone with no cached
+pipeline artifacts, rather than failing).
 
-## MLOps
+CI runs the same suite on every push/PR — see
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
-- **Docker**: [`Dockerfile`](Dockerfile) + [`run.sh`](run.sh) as the entrypoint (`./run.sh <main.py args>`
-  locally, `./run.sh api` for the service). CPU-only torch build (the
-  default PyPI wheel pulls in several GB of CUDA libraries that are dead
-  weight here — FinBERT sentiment scoring never touches a GPU in this
-  pipeline).
-- **CI**: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the full `pytest`/`pytest-cov` suite on
-  every push/PR to `main`.
-- **MLflow**: [`src/tracking.py`](src/tracking.py) logs every walk-forward CV fold, for every
-  model variant (LightGBM/XGBoost/Ridge/SARIMAX), as a nested MLflow run,
-  plus the final `.joblib` artifacts. Opt in with `--mlflow` on
-  `--train-only`/`--full`. Tracking store: `sqlite:///mlflow.db` (MLflow
-  3.x deprecated the plain `./mlruns` file store).
-- **DVC**: `data/raw`, `data/features`, `data/processed` are DVC-tracked
-  (`data/*.dvc`) rather than git-committed. The configured remote
-  (`.dvc/config`) is a placeholder S3 URL — point it at real bucket
-  credentials before `dvc push`/`pull` in production.
-- **Airflow**: [`airflow/dags/quant_research_platform_pipeline.py`](airflow/dags/quant_research_platform_pipeline.py) — a 3-task
-  DAG (`collect_data` → `engineer_features_and_train` → `backtest`)
-  shelling out to the same staged CLI. Written and syntax-checked, not
-  run against a live Airflow scheduler in this repo's dev environment.
+## Scope
 
-## Results
+Deliberately bounded, on purpose:
 
-A historical example forward-test run (Oct–Dec 2025, under the original
-`inverse_volatility` construction method, before the merge changed the
-default to `alpha_hrp`) is checked in at
-[`reports/performance_report.txt`](reports/performance_report.txt):
+- **No RAG / agentic / MCP** — this platform's job is forecast → construct
+  → backtest, not retrieval or tool-calling. That's covered by sibling
+  projects in the portfolio (`Financial Anomaly Detection Using RAG`,
+  `Patent Prior-Art Agent`); pulling either capability in here would be
+  scope creep, not a feature.
+- **The original portfolio-replication project's large-universe
+  "replicate an index" mode is kept, but as a separate, optional
+  entrypoint** (`scripts/legacy_replication.py`), not merged into the
+  default forecast → construct path. It needs a completely different,
+  disconnected ~409-ticker S&P 500 universe (with user-supplied price
+  CSVs never included in this repo) and has no relationship to the
+  6-stock sentiment/forecasting pipeline — kept alive because it was
+  working, tested functionality, not because it belongs in the main
+  story.
+- **FinBERT sentiment and the legacy mode's autoencoder selection both
+  have a designed fallback** (synthetic headlines + rule-based scoring;
+  PCA) when `transformers`/`torch`/`tensorflow` aren't installed — see
+  `requirements-optional.txt`. CI and the test suite deliberately run
+  against the fallback path, not the real models.
+- **DVC's configured remote is a placeholder** (`s3://your-bucket/...`
+  in `.dvc/config`) — point it at real credentials before `dvc push`/`pull`
+  do anything in production.
+- **The Airflow DAG was written and syntax-checked, not run against a
+  live scheduler** in this repo's dev environment — standing one up
+  (metadata DB, webserver, scheduler) was judged out of scope for
+  verifying a 3-task `BashOperator` DAG whose correctness mostly rides on
+  `main.py`'s CLI flags, which are tested.
+- **No fabricated backtest numbers, ever** — see [Results](#results).
 
-| Metric | Value |
-|---|---|
-| Annualised Return | 28.0916% |
-| Annualised Volatility | 8.0649% |
-| Sharpe Ratio | 2.3049 |
-| Sortino Ratio | 5.3842 |
-| Maximum Drawdown | 2.6950% |
-| Hit Ratio | 54.0984% |
-| Calmar Ratio | 10.4238 |
+## License
 
-(The original README this came from had a copy-paste bug — Max Drawdown
-and Hit Ratio were both shown as `2.3049`, the Sharpe ratio's value. Fixed
-here; see `DECISIONS.md`.)
-
-**This table has not been regenerated under the new default
-(`alpha_hrp`) construction method in this session** — run
-`./run.sh --full --benchmark` (or `--backtest-only --benchmark` if models
-are already trained) to produce a current comparison across
-`equal_weight` / `mean_variance` / `alpha_hrp` / `alpha_markowitz`,
-written to `reports/benchmark_comparison.txt`.
-
-## Project structure
-
-```
-config/           config.yaml, sector_map.csv
-src/
-  data/           market/fundamental/macro/sentiment fetchers + replication_loader.py
-  features/       technical/fundamental/macro/sentiment feature engineers
-  models/         forecaster.py, walk_forward.py, feature_selection.py, sarimax_model.py
-  construction/   optimizer.py, weighting.py, selection.py, sectors.py, alpha_portfolio.py
-  backtest/       backtester.py, metrics.py, benchmarks.py, replication_*.py
-  api/            FastAPI service
-  utils/          logger.py, helpers.py
-  tracking.py     MLflow logging
-scripts/          legacy_replication.py (optional large-universe mode)
-airflow/dags/     Airflow DAG
-tests/            pytest suite (88 tests)
-docs/original-coursework/   the two source projects' original READMEs, reports, group rosters
-main.py           CLI entrypoint (--full / --data-only / --train-only / --backtest-only / --step N)
-DECISIONS.md      running log: decisions, problems found, how they were resolved
-todo.md           the original merge plan this repo was built from
-```
-
-## Credit
-
-Originally two group coursework projects (Group 34) — see
-[`docs/original-coursework/`](docs/original-coursework/) for the original READMEs and
-[`docs/original-coursework/*/Group_Details.*`](docs/original-coursework/) for the group rosters filed
-with each course. The merge, API layer, and MLOps additions in this
-repository (everything from the first commit onward — see `git log`)
-are Aritra Dasgupta's own independent work, built after the courses
-concluded.
+[MIT](LICENSE)
