@@ -440,7 +440,15 @@ class FeatureSelector:
                 reg_lambda=1.0,
                 min_child_samples=20,
                 verbose=-1,
-                n_jobs=-1,
+                # RFE calls .fit() on this estimator once per elimination
+                # step (~16 sequential fits going from ~109 features down
+                # to 30 at step=5) -- n_jobs=-1 here means each of those
+                # fits spins up a fresh full-core OpenMP thread pool back
+                # to back, which is a known LightGBM segfault trigger on
+                # macOS (worse with a Homebrew libomp in the mix). RFE is
+                # already sequential, so losing per-fit parallelism here
+                # is cheap; not crashing is worth more.
+                n_jobs=1,
                 random_state=42,
             )
         except ImportError:
