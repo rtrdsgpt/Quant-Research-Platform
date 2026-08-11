@@ -407,7 +407,47 @@ flags already being tested (which they are, via `tests/`). Flagged
 clearly in the DAG's own docstring and in the README rather than implying
 it was run.
 
-## Next entries
+## 2026-08-11 — Wrap-up
 
-Remaining: final README pass (done alongside this entry) and closing out
-this log once the last commit lands.
+All of `todo.md` is done (checked off there, left in place as the
+original plan rather than deleted). Summary of what actually shipped,
+for anyone reading this log without wanting to walk the whole history:
+
+- Single unified `src/` package; both original project directories
+  (`return-forecasting/`, `portfolio-replication/`) removed entirely
+  after every module was moved in with `git mv` or ported by hand.
+- The forecasting ensemble's predicted returns genuinely drive portfolio
+  construction now (`alpha_hrp` is the new default `portfolio.method`),
+  through `src/construction/weighting.py`'s new alpha-maximizing
+  Markowitz objective and HRP-over-positive-alpha-subset, reusing the
+  original tracking-error-vs-benchmark code's constraint machinery
+  (per-stock/sector caps) rather than replacing it wholesale.
+- SARIMAX is a genuine baseline, walk-forward CV'd on the identical
+  folds as the ML ensemble, reported alongside it rather than blended in.
+- FastAPI/Docker/CI/MLflow/DVC/Airflow all exist, and — where it was
+  possible to actually check in this session (API endpoints, Docker
+  image, MLflow logging, DVC add/push, the pre-existing + new test
+  suite) — were run for real against real cached data/models, not just
+  written and assumed correct. The one exception is the Airflow DAG,
+  which needed a live scheduler this session didn't stand up; that
+  limitation is stated plainly in both the DAG file and the README
+  rather than left implicit.
+- Test suite went from "looks green because failures are silently
+  skipped" (the state actually inherited from both source projects) to
+  88 passing tests with 0 skips, by fixing every stale-API mismatch
+  found along the way rather than working around them.
+
+Three explicit judgment calls worth restating because they diverged
+from a literal reading of `todo.md` or from an initial default:
+1. Kept the portfolio-replication project's large-universe replication
+   mode alive as `scripts/legacy_replication.py` instead of deleting it.
+2. Declined to remove other students' names from the original
+   `Group_Details.txt`/`.rtf` submission files when asked to, since
+   those are the literal records filed with the course; the repo owner's
+   authorship of the *merge/extension* work in this repository is
+   unambiguous regardless.
+3. Left `docs/original-coursework/*/ARCHITECTURE.md` and other stale
+   planning docs in the archive folder rather than the live docs tree,
+   since they described an aspirational API that never matched the
+   actual code (this is *how* several of the pre-existing test failures
+   happened) and would mislead a reader if presented as current.
