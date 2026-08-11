@@ -484,3 +484,41 @@ imported from Python code -- dvc is a standalone CLI tool). CI now
 installs only the lean core; the Dockerfile installs core + optional
 (production wants real sentiment scoring) with the CPU-torch fix moved
 up to apply to both files at once.
+
+## 2026-08-11 — Segfault in RFE feature selection
+
+**Problem:** running the real pipeline end to end for the first time
+(`./run.sh --full --benchmark`, on the repo owner's own machine, with
+real FinBERT sentiment fetched successfully over ~7 minutes) crashed
+with a bare `zsh: segmentation fault` partway through Stage 3, right
+after `Running RFE: 109 features -> 30, step=5, estimator=LGBMRegressor`
+-- before any of the three ensemble models had even started training. A
+`resource_tracker: leaked semaphore` warning followed, consistent with
+an abrupt native-code crash rather than a clean Python exception.
+
+**Root cause:** `FeatureSelector._default_rfe_estimator()`
+(`src/models/feature_selection.py`) built the LightGBM model used inside
+`sklearn.feature_selection.RFE` with `n_jobs=-1`. RFE calls
+`.fit()` on that estimator once per elimination step -- at `step=5`,
+going from 109 features down to 30 is ~16 sequential fits -- and each
+one spun up a fresh full-core OpenMP thread pool immediately after the
+previous one tore down. Repeated OpenMP thread-pool churn like that is a
+documented LightGBM segfault trigger on macOS, and this machine was
+already primed for it: it needed a Homebrew `libomp` installed earlier
+in this session (see the "Test suite" entry above) to fix an unrelated
+import error, so there are now two OpenMP-adjacent runtimes in play
+rather than one.
+
+**Fix:** changed that one estimator's `n_jobs` from `-1` to `1`. RFE's
+own loop is already sequential, so per-fit parallelism inside each of
+the ~16 fits was buying little wall-clock time at the cost of exactly
+this instability. Verified against the repo owner's own real cached
+feature data (`data/features/RELIANCE.NS_features.parquet`, produced by
+the run that crashed) rather than just reasoning about it:
+`FeatureSelector.select()` now runs the full
+collinearity-filter -> RFE path cleanly in about a second, where it
+previously took down the process. Left `n_jobs=-1` alone on the
+*ensemble* LightGBM/XGBoost models in `forecaster.py` -- those each fit
+only once per ticker rather than ~16 times back to back, so they don't
+hit the same repeated-churn trigger, and there's no evidence (crash log
+or otherwise) implicating them.
