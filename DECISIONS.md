@@ -646,6 +646,57 @@ sequential outer-loop fits -- a different mechanism, not the same bug.
 Noting this rather than silently leaving it unaddressed, in case the
 legacy mode gets exercised for real later and something similar shows up.
 
+## 2026-08-12 — Fourth segfault: three different libomp.dylib copies in one process
+
+**Problem:** with both LightGBM/XGBoost `n_jobs` fixes in place, the repo
+owner reran `./run.sh --full --benchmark` again. Crashed a third time, at
+almost the identical spot as the fix above -- LightGBM's 44-fold CV for
+RELIANCE.NS completed cleanly this time, then XGBoost's CV crashed on
+fold 0/44, immediately.
+
+**Root cause, this time actually root-caused with `otool`, not inferred
+from a log line:** the repo owner's `venv` has real FinBERT enabled
+(`requirements-optional.txt` installed, `torch` 2.13.0 present) --
+`--full` runs Stage 1 (real sentiment fetch, which lazily imports `torch`)
+and Stage 3 (training) in the *same process*. `otool -L` on the venv's
+native libraries showed three independent `libomp.dylib` files that can
+all end up loaded together: `torch/lib/libomp.dylib` (torch's own bundled
+copy), `sklearn/.dylibs/libomp.dylib` (scikit-learn's own bundled copy),
+and `/opt/homebrew/opt/libomp/lib/libomp.dylib` (the Homebrew copy
+lightgbm/xgboost both link against via `@rpath`). Once `torch` is
+imported anywhere in the process (Stage 1), its `libomp.dylib` stays
+resident for the process's lifetime; when lightgbm/xgboost later spin up
+their own OpenMP thread pools during walk-forward CV (Stage 3), two
+different runtime copies are active in the same process at once.
+
+**Reproduced directly, not just theorized:** ran
+`ReturnForecaster.train_ensemble()` on the real RELIANCE.NS feature
+matrix with a bare `import torch` added before it (simulating what
+Stage 1's real FinBERT load does) -- crashed at the identical spot,
+confirming the mechanism before attempting any fix.
+
+**Fix attempt 1, insufficient:** `KMP_DUPLICATE_LIB_OK=TRUE` (the
+standard, widely-documented workaround for "multiple OpenMP runtimes
+loaded" crashes) alone did **not** fix the reproduction -- still
+segfaulted (exit 139). Worth stating plainly since this is the fix
+most guides suggest first and it wasn't enough here.
+
+**Fix that actually worked, verified against the same reproduction:**
+`KMP_DUPLICATE_LIB_OK=TRUE` **and** `OMP_NUM_THREADS=1` together.
+`OMP_NUM_THREADS=1` forces every OpenMP-using library (not just
+scikit-learn's `n_jobs=1`, which only was set on lightgbm/xgboost's own
+constructors) to skip thread-pool creation entirely at the runtime
+level. With both set, `import torch` followed by the full
+`train_ensemble()` (LightGBM 44-fold CV, XGBoost 44-fold CV, Ridge,
+SARIMAX benchmark) completed cleanly end to end, real ensemble weights
+produced, exit code 0.
+
+Set both as exported env vars at the top of `run.sh`, with a comment
+explaining the mechanism and noting they're a no-op (harmless) on
+Linux/Docker and on any machine with only one `libomp` in play --
+this is a macOS-plus-Homebrew-libomp-specific interaction, not a
+platform-independent bug in this codebase's own logic.
+
 ## 2026-08-11 — README/LICENSE brought in line with the rest of the portfolio
 
 Repo owner asked for the README, LICENSE, and "features" (clarified via
