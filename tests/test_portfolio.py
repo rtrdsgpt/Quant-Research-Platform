@@ -120,13 +120,9 @@ class TestPortfolioOptimizer:
 
         optimizer = PortfolioOptimizer(config)
         n_assets = 6
-        try:
-            weights = optimizer.equal_weights(n_assets)
-            assert abs(np.sum(weights) - 1.0) < 1e-6
-            assert np.allclose(weights, 1.0 / n_assets)
-        except (AttributeError, TypeError):
-            # Method may have different signature
-            pytest.skip("equal_weights signature may differ")
+        weights = optimizer.equal_weight(n_assets)
+        assert abs(np.sum(weights) - 1.0) < 1e-6
+        assert np.allclose(weights, 1.0 / n_assets)
 
     def test_weights_sum_to_one(self, config, sample_returns):
         """Optimized weights should always sum to approximately 1."""
@@ -208,15 +204,13 @@ class TestPortfolioMetrics:
             pytest.skip("sharpe_ratio method signature may differ")
 
     def test_max_drawdown_range(self, config, sample_portfolio_returns):
-        """Max drawdown should be between -1 and 0."""
+        """Max drawdown should be a positive decimal in [0, 1]."""
         from src.backtest.metrics import PortfolioMetrics
 
         metrics_calc = PortfolioMetrics(config)
-        try:
-            mdd = metrics_calc.max_drawdown(sample_portfolio_returns)
-            assert -1.0 <= mdd <= 0.0, f"MDD should be in [-1, 0], got {mdd}"
-        except (AttributeError, TypeError):
-            pytest.skip("max_drawdown method signature may differ")
+        portfolio_values = (1 + sample_portfolio_returns).cumprod() * 1_000_000
+        mdd = metrics_calc.maximum_drawdown(portfolio_values)
+        assert 0.0 <= mdd <= 1.0, f"MDD should be in [0, 1], got {mdd}"
 
     def test_hit_ratio_range(self, config):
         """Hit ratio should be between 0 and 1."""
@@ -233,19 +227,20 @@ class TestPortfolioMetrics:
             pytest.skip("hit_ratio method signature may differ")
 
     def test_equity_curve_monotonic_for_positive_returns(self, config):
-        """Equity curve should be monotonically increasing for all-positive returns."""
+        """Portfolio value should be monotonically increasing (zero drawdown)
+        for all-positive returns."""
         from src.backtest.metrics import PortfolioMetrics
 
         metrics_calc = PortfolioMetrics(config)
         returns = pd.Series([0.01, 0.02, 0.01, 0.005, 0.01])
+        portfolio_values = (1 + returns).cumprod() * 1_000_000
 
-        try:
-            curve = metrics_calc.equity_curve(returns)
-            assert isinstance(curve, pd.Series)
-            diffs = curve.diff().dropna()
-            assert (diffs >= 0).all(), "Equity should only increase for positive returns"
-        except (AttributeError, TypeError):
-            pytest.skip("equity_curve method signature may differ")
+        diffs = portfolio_values.diff().dropna()
+        assert (diffs >= 0).all(), "Portfolio value should only increase for positive returns"
+
+        drawdown = metrics_calc.drawdown_series(portfolio_values)
+        assert isinstance(drawdown, pd.Series)
+        assert np.allclose(drawdown.values, 0.0), "Drawdown should be zero when always at a new high"
 
     def test_compute_all_metrics(self, config, sample_portfolio_returns):
         """compute_all_metrics should return a dict with standard keys."""

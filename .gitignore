@@ -23,30 +23,36 @@ env/
 .env
 *.env
 
-# return-forecasting: data, models, logs, reports are pipeline-generated —
-# keep directory placeholders (.gitkeep) but not their contents.
-return-forecasting/data/**
-!return-forecasting/data/**/
-!return-forecasting/data/**/.gitkeep
+# Pipeline-generated data/models/logs -- keep directory placeholders
+# (.gitkeep) but not their contents.
+data/**
+!data/**/
+!data/**/.gitkeep
 
-return-forecasting/models/**
-!return-forecasting/models/**/
-!return-forecasting/models/**/.gitkeep
+models/**
+!models/**/
+!models/**/.gitkeep
 
-return-forecasting/logs/**
-!return-forecasting/logs/**/
-!return-forecasting/logs/**/.gitkeep
+logs/**
+!logs/**/
+!logs/**/.gitkeep
 
-# portfolio-replication: raw price data not committed (see README)
-portfolio-replication/data/raw/
+# Pipeline-generated reports -- except the legacy-replication figures,
+# which are committed as a historical reference (original project run).
+reports/**
+!reports/**/
+!reports/**/.gitkeep
+!reports/legacy_replication/**
+
+# Legacy large-universe replication mode: user-supplied price CSVs, not
+# included in this repo (see construction.legacy_replication in config.yaml)
+data/replication_raw/
 
 # MLflow
 mlruns/
 mlartifacts/
 
 # DVC
-/data/**
-!/data/**/.gitkeep
 .dvc/cache
 .dvc/tmp
 
@@ -54,3 +60,5 @@ mlartifacts/
 airflow/logs/
 airflow.db
 airflow-webserver.pid
+.coverage
+htmlcov/

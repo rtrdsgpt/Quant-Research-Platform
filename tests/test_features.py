@@ -164,7 +164,10 @@ class TestFundamentalFeatureEngineer:
         from src.features.fundamental_features import FundamentalFeatureEngineer
 
         engineer = FundamentalFeatureEngineer(config)
-        result = engineer.generate_all_features(sample_fundamental)
+        daily_dates = pd.bdate_range(
+            sample_fundamental.index.min(), sample_fundamental.index.max()
+        )
+        result = engineer.generate_all_features(sample_fundamental, daily_dates)
         assert isinstance(result, pd.DataFrame)
         assert len(result) > 0
 

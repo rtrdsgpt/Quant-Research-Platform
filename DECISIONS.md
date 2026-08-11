@@ -71,7 +71,212 @@ imply sole authorship of the pre-merge code. Both `Group_Details.txt`
 and `Group_Details.rtf` are kept in the repo unmodified as the primary
 source record.
 
+**Repo naming:** renamed the GitHub repo from the initial `quant-research-platform`
+to `Quant-Research-Platform` (matching the working-directory casing) and set a
+real description, per the owner's request, instead of the placeholder used
+at creation time.
+
+## 2026-08-11 — Unified layout (single `src/`, not two packages)
+
+**Decision (superseding the layout note above):** the repo owner explicitly
+rejected the "two internal packages + thin connector" approach and asked
+for one unified project with `return-forecasting/` and `portfolio-replication/`
+removed entirely. Rebuilt the layout as a single `src/` package, organised
+by pipeline stage rather than by origin project:
+
+```
+src/
+  data/          market/fundamental/macro/sentiment fetchers (return-forecasting)
+               + replication_loader.py (portfolio-replication's data_loader.py)
+  features/      technical/fundamental/macro/sentiment feature engineers (return-forecasting)
+  models/        forecaster.py, walk_forward.py, feature_selection.py (return-forecasting)
+               + sarimax_model.py (new)
+  construction/  optimizer.py (return-forecasting's weight optimizer)
+               + weighting.py, selection.py, sectors.py (portfolio-replication)
+               + alpha_portfolio.py, config.py (new -- see merge section below)
+  backtest/      backtester.py, metrics.py (return-forecasting)
+               + replication_evaluation.py, replication_report.py,
+                 replication_visualization.py (portfolio-replication, renamed)
+               + benchmarks.py (new)
+  api/           FastAPI service (new, added later)
+  utils/         logger.py, helpers.py (return-forecasting)
+```
+
+Both `return-forecasting/` and `portfolio-replication/` directories (and
+the leftover empty `portfolio-replication/notebooks/`) were deleted after
+every file was moved via `git mv` (preserving history) or ported by hand.
+Config, requirements, and READMEs were merged rather than kept side by
+side -- see below.
+
+**Problem:** every moved file used absolute imports rooted at its own
+project (`from src.data...`, `from src.portfolio.optimizer...`,
+`from portfolio_replication import config...`). A first-pass `sed` only
+matched line-start (`^from`) imports and silently missed every import
+inside an indented function body (mainly in `tests/`) and in module
+docstring examples. Caught this by actually running `pytest` afterward
+(26 failures, all `ModuleNotFoundError`) rather than trusting the
+compile-only check -- fixed with a second grep across the whole tree for
+`src.portfolio` / `portfolio_replication` with no anchor, which surfaced
+the missed indented imports in `tests/test_portfolio.py` and three
+docstring examples.
+
+**Judgment call:** kept the original portfolio-replication project's
+large-universe "replicate an index" mode (LASSO/autoencoder selection vs.
+a benchmark, Markowitz tracking-error/HRP weighting, rolling-CV k-search)
+as `scripts/legacy_replication.py`, config section
+`construction.legacy_replication`, rather than deleting it. It was
+working, tested functionality that just isn't the platform's new default
+path (6-stock alpha construction needs none of the sparsity search a
+409-ticker replication universe needs) -- discarding it to "clean up"
+would have thrown away real functionality for no benefit. It's clearly
+labelled optional/legacy in the config comments and its own module
+docstring, and still needs the same externally-supplied price CSVs the
+original README described (not committed, same as before).
+
+## 2026-08-11 — Core merge: forecast -> construct wiring
+
+**Decision:** rather than bolting the two projects together with an
+adapter, redirected `portfolio-replication`'s weighting layer to consume
+the forecasting ensemble's alpha signal directly:
+
+- `src/construction/weighting.py` gained `alpha_markowitz_weights()`,
+  sibling to the existing `markowitz_weights()` but replacing the
+  tracking-error-vs-benchmark objective (`minimize Var(portfolio - benchmark)`)
+  with an alpha-maximizing mean-variance objective
+  (`maximize alpha'w - risk_aversion * w'Sigma*w`), reusing the same
+  cvxpy/SLSQP-fallback solve path and the same
+  `enforce_weight_constraints()` (per-stock cap + sector caps).
+  `hrp_weights()` needed no change -- it was already benchmark-agnostic.
+- `src/construction/alpha_portfolio.py` (new) is the actual glue: takes
+  the forecaster's per-ticker `Predicted_Return`, and for `method="hrp"`
+  restricts the candidate set to positive-alpha tickers before calling
+  `hrp_weights` (HRP only encodes risk structure, not expected return, so
+  alpha has to enter through stock *selection*, not weighting, for that
+  method); for `method="markowitz"` it calls `alpha_markowitz_weights`
+  directly over the full universe.
+- `src/construction/optimizer.py`'s `PortfolioOptimizer.optimize()` gained
+  two new dispatch branches, `"alpha_markowitz"` / `"alpha_hrp"`, that
+  route into `alpha_portfolio.build_alpha_weights()`. This means the
+  *existing* `PortfolioBacktester` rebalancing loop (return-forecasting's
+  day-by-day backtest engine, unmodified) already produces a forecast-driven
+  portfolio just by setting `portfolio.method` in config -- no backtester
+  changes needed.
+- Changed the **default** `portfolio.method` from `inverse_volatility` to
+  `alpha_hrp`, so the merged pipeline's default run actually exercises the
+  new integration rather than leaving it as an opt-in path nobody runs by
+  default.
+
+**Problem found & fixed:** the 6-stock return-forecasting universe has
+exactly one stock per GICS-style sector (per the README's stock table),
+so `portfolio-replication`'s per-sector weight cap is a no-op unless the
+6 NSE tickers are actually present in `sector_map.csv` -- that CSV only
+had 409 US S&P 500 tickers. Appended the 6 tickers (canonical form,
+`.` -> `-`, matching `sectors.canonical_ticker()`) with sectors read off
+the README table (Energy/Financials/IT/Consumer Discretionary/Communication
+Services/Consumer Staples). Verified this actually binds: with
+`sector_cap_buffer=0.10` each single-stock sector caps at `1/6 + 0.10
+= 0.2667`, tighter than the 0.40 per-stock cap, confirmed by a smoke test
+producing exactly `0.2667` weights on 4 of 6 stocks under `alpha_markowitz`.
+
+**Benchmark comparison (`todo.md` item: "Benchmark the forecast-driven
+portfolio against equal-weight and mean-variance baselines"):** added
+`src/backtest/benchmarks.py`, which deep-copies the config, overrides
+`portfolio.method` across `["equal_weight", "mean_variance", "alpha_hrp",
+"alpha_markowitz"]`, reruns `PortfolioBacktester.forward_test()` for each,
+and returns a side-by-side metrics table. Wired into `main.py` as an
+opt-in `--benchmark` flag (stage 5) that also writes
+`reports/benchmark_comparison.txt`. **Not run end-to-end in this
+session** -- doing so needs real market/fundamental/sentiment data and
+full model retraining (the repo has cached data/models from a prior local
+run, preserved under `data/`, `models/`, but re-running the full
+comparison wasn't done here); the wiring itself is covered by unit tests
+in `tests/test_construction.py` (`TestOptimizerAlphaMethods`) using
+synthetic returns.
+
+## 2026-08-11 — SARIMAX baseline (closes the ARIMA/SARIMA gap)
+
+**Decision:** implemented SARIMAX as a **univariate** baseline (no
+exogenous features) via `src/models/sarimax_model.py::SARIMAXRegressor`,
+a thin `sklearn.base.BaseEstimator` wrapper around
+`statsmodels.tsa.statespace.sarimax.SARIMAX`. Considered feeding it the
+same ~30 RFE-selected features as `exog=`, but rejected that: with ~500
+training rows and a purge-gap fold structure, a 30-column exog SARIMAX is
+numerically fragile and stops being a meaningful "classical time-series
+baseline" comparison point -- the point of adding it was to compare the
+feature-driven ML ensemble against a model that *only* uses the target
+series' own autocorrelation structure, which is the standard reading of
+"ARIMA/SARIMA baseline."
+
+**Design for zero changes to the walk-forward harness:** `predict()`
+takes `len(X)` to determine how many steps to forecast (ignoring `X`'s
+values) and internally forecasts `purge_gap + len(X)` steps, returning
+only the last `len(X)` -- so it respects the same 5-day purge gap the
+other models get via index slicing, without `walk_forward.py` needing to
+know SARIMAX is different. Verified this actually plugs into
+`WalkForwardValidator.cross_validate()` unchanged (`sklearn.base.clone`
+works via inherited `get_params`/`set_params`, `_fit_model`'s tree-model
+string check correctly falls through to plain `.fit()`) with a smoke test
+before writing the permanent pytest coverage.
+
+**Decision:** SARIMAX is walk-forward CV'd **alongside** the ensemble
+(same fold structure, same metrics) but **not blended into it** --
+`config.model.benchmark_models: ["sarimax"]` is a separate list from
+`ensemble_models`, and `ReturnForecaster.train_ensemble()` CV-evaluates
+it into the same `cv_scores` dict for direct comparison without touching
+the inverse-MSE ensemble-weight computation. This matches
+`todo.md`'s literal framing ("benchmarked *against* the ensemble") rather
+than silently folding a possibly-weak baseline into the blended
+prediction.
+
+## 2026-08-11 — Test suite: fixed pre-existing breakage, added merge coverage
+
+Ran the inherited `tests/` suite after the restructure and found it was
+**not** actually passing before the merge either -- it had drifted from
+`ARCHITECTURE.md`'s aspirational API (different method names/signatures)
+rather than the real code, and several failures were silently masked by
+broad `except (AttributeError, TypeError): pytest.skip(...)` blocks.
+Fixed all of them rather than leave a green-looking suite that wasn't
+actually exercising anything:
+
+- `test_features.py`: 4 tests called a `.build()` method that doesn't
+  exist -- the real method is `generate_all_features()` (with an extra
+  required `daily_dates` arg for the fundamental engineer).
+- `test_models.py`: `TestWalkForwardValidator`'s 3 tests called
+  `generate_splits(sample_features.index)` (a DatetimeIndex) against a
+  real signature of `generate_splits(n_samples: int)`, and asserted on
+  `split.val_start`/`split.train_end` attributes that don't exist on the
+  real `(train_idx, val_idx)` numpy-array tuples -- 1 was an outright
+  failure, 2 were silently skipped. Rewrote against the real signature.
+- `test_data.py`: `fetch_single_stock()` requires `start`/`end` args the
+  test didn't pass; `test_load_cached_file_not_found` set a
+  `raw_data_path` attribute that `load_cached()` doesn't actually read
+  (it reads `raw_dir` first) and asserted the method *raises* on missing
+  files, when the real (reasonable) behaviour is to skip missing tickers
+  and return an empty dict, not raise.
+- `test_portfolio.py`: 3 skipped tests referenced `equal_weights()`
+  (plural; real name `equal_weight`), `max_drawdown()` (real name
+  `maximum_drawdown`, and it returns a **positive** decimal, not
+  negative -- the skipped test's own assertion range was inverted), and
+  `equity_curve()` (doesn't exist; rewrote against the real
+  `drawdown_series()`).
+- Environment note: `lightgbm`/`xgboost` initially failed to import
+  (`libomp.dylib` not found) -- this is a local macOS + Homebrew Python
+  packaging gap, not a project bug. Fixed with `brew install libomp` so
+  the full suite (including the ensemble/SARIMAX walk-forward CV tests)
+  could actually run rather than being skipped/mocked around.
+
+Added `tests/test_construction.py` (18 tests) covering the new merge
+logic end to end: alpha-Markowitz/HRP weighting correctness (weights
+sum to 1, respect caps, higher alpha -> more weight), the
+forecaster -> weighting glue in `alpha_portfolio.py`, the optimizer's new
+`alpha_markowitz`/`alpha_hrp` dispatch, and the SARIMAX wrapper
+(sklearn-compatibility, fit/predict shapes, real walk-forward CV
+integration, and that it's registered as a benchmark rather than an
+ensemble member).
+
+Full suite: **78 passed, 0 failed, 0 skipped** (`pytest tests/ -q`).
+
 ## Next entries
 
-Further decisions (layout, forecaster->weighting wiring, SARIMAX
-baseline, API/MLOps additions) are logged below as they're made.
+Further decisions (API layer, Docker/CI/MLflow/DVC/Airflow) are logged
+below as they're made.
