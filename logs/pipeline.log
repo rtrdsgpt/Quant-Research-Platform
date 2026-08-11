@@ -1,0 +1,992 @@
+2026-02-23 23:44:38,594 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-02-23 23:44:39,250 - src.utils.helpers - INFO - Random seed set to 42
+2026-02-23 23:44:39,252 - main - INFO - ============================================================
+2026-02-23 23:44:39,253 - main - INFO - MULTI-DIMENSIONAL RETURN FORECASTING PIPELINE
+2026-02-23 23:44:39,253 - main - INFO - ============================================================
+2026-02-23 23:44:39,253 - main - INFO - Config: config/config.yaml
+2026-02-23 23:44:39,253 - main - INFO - Tickers: RELIANCE.NS, HDFCBANK.NS, INFY.NS, M&M.NS, BHARTIARTL.NS, HINDUNILVR.NS
+2026-02-23 23:44:39,253 - main - INFO - Date range: 2020-01-01 → 2025-12-31
+2026-02-23 23:44:39,433 - main - INFO - ============================================================
+2026-02-23 23:44:39,433 - main - INFO - STAGE 1: DATA COLLECTION
+2026-02-23 23:44:39,433 - main - INFO - ============================================================
+2026-02-23 23:44:39,433 - main - INFO - Fetching market data...
+2026-02-23 23:44:39,433 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-02-23 23:44:39,446 - src.data.market_data - INFO - Fetching RELIANCE.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-02-23 23:44:40,486 - src.data.market_data - WARNING - RELIANCE.NS: 1 zero-volume trading days detected
+2026-02-23 23:44:40,487 - src.data.market_data - INFO - Successfully fetched RELIANCE.NS – 1486 rows, 2020-01-01 → 2025-12-30
+2026-02-23 23:44:40,527 - src.data.market_data - INFO - Saved RELIANCE.NS OHLCV data → data/raw/market/RELIANCE.NS_ohlcv.parquet
+2026-02-23 23:44:40,527 - src.data.market_data - INFO - Fetching HDFCBANK.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-02-23 23:44:40,870 - src.data.market_data - WARNING - HDFCBANK.NS: 1 zero-volume trading days detected
+2026-02-23 23:44:40,871 - src.data.market_data - INFO - Successfully fetched HDFCBANK.NS – 1486 rows, 2020-01-01 → 2025-12-30
+2026-02-23 23:44:40,873 - src.data.market_data - INFO - Saved HDFCBANK.NS OHLCV data → data/raw/market/HDFCBANK.NS_ohlcv.parquet
+2026-02-23 23:44:40,873 - src.data.market_data - INFO - Fetching INFY.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-02-23 23:44:41,253 - src.data.market_data - WARNING - INFY.NS: 1 zero-volume trading days detected
+2026-02-23 23:44:41,253 - src.data.market_data - INFO - Successfully fetched INFY.NS – 1486 rows, 2020-01-01 → 2025-12-30
+2026-02-23 23:44:41,257 - src.data.market_data - INFO - Saved INFY.NS OHLCV data → data/raw/market/INFY.NS_ohlcv.parquet
+2026-02-23 23:44:41,257 - src.data.market_data - INFO - Fetching M&M.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-02-23 23:44:41,686 - src.data.market_data - WARNING - M&M.NS: 2 zero-volume trading days detected
+2026-02-23 23:44:41,687 - src.data.market_data - INFO - Successfully fetched M&M.NS – 1486 rows, 2020-01-01 → 2025-12-30
+2026-02-23 23:44:41,690 - src.data.market_data - INFO - Saved M&M.NS OHLCV data → data/raw/market/M&M.NS_ohlcv.parquet
+2026-02-23 23:44:41,690 - src.data.market_data - INFO - Fetching BHARTIARTL.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-02-23 23:44:42,584 - src.data.market_data - WARNING - BHARTIARTL.NS: 1 zero-volume trading days detected
+2026-02-23 23:44:42,585 - src.data.market_data - INFO - Successfully fetched BHARTIARTL.NS – 1486 rows, 2020-01-01 → 2025-12-30
+2026-02-23 23:44:42,588 - src.data.market_data - INFO - Saved BHARTIARTL.NS OHLCV data → data/raw/market/BHARTIARTL.NS_ohlcv.parquet
+2026-02-23 23:44:42,588 - src.data.market_data - INFO - Fetching HINDUNILVR.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-02-23 23:44:43,139 - src.data.market_data - WARNING - HINDUNILVR.NS: 1 zero-volume trading days detected
+2026-02-23 23:44:43,140 - src.data.market_data - INFO - Successfully fetched HINDUNILVR.NS – 1486 rows, 2020-01-01 → 2025-12-30
+2026-02-23 23:44:43,144 - src.data.market_data - INFO - Saved HINDUNILVR.NS OHLCV data → data/raw/market/HINDUNILVR.NS_ohlcv.parquet
+2026-02-23 23:44:43,144 - src.data.market_data - INFO - Fetched OHLCV data for 6 / 6 tickers
+2026-02-23 23:44:43,159 - src.data.market_data - INFO - Saved processed market data → data/processed/market_processed.parquet
+2026-02-23 23:44:43,159 - main - INFO - Market data fetched for 6 tickers in 3.7s
+2026-02-23 23:44:43,159 - main - INFO - Fetching fundamental data...
+2026-02-23 23:44:43,159 - src.data.fundamental_data - INFO - FundamentalDataFetcher initialised – 6 tickers
+2026-02-23 23:44:43,159 - src.data.fundamental_data - INFO - Fetching fundamentals for RELIANCE.NS
+2026-02-23 23:44:44,654 - src.data.fundamental_data - INFO - yfinance provided 6 quarterly records for RELIANCE.NS
+2026-02-23 23:44:44,656 - src.data.fundamental_data - INFO - Saved RELIANCE.NS fundamentals → data/raw/fundamental/RELIANCE.NS_fundamentals.parquet
+2026-02-23 23:44:44,657 - src.data.fundamental_data - INFO - Fetching fundamentals for HDFCBANK.NS
+2026-02-23 23:44:45,431 - src.data.fundamental_data - INFO - yfinance provided 5 quarterly records for HDFCBANK.NS
+2026-02-23 23:44:45,434 - src.data.fundamental_data - INFO - Saved HDFCBANK.NS fundamentals → data/raw/fundamental/HDFCBANK.NS_fundamentals.parquet
+2026-02-23 23:44:45,435 - src.data.fundamental_data - INFO - Fetching fundamentals for INFY.NS
+2026-02-23 23:44:46,538 - src.data.fundamental_data - INFO - yfinance provided 7 quarterly records for INFY.NS
+2026-02-23 23:44:46,540 - src.data.fundamental_data - INFO - Saved INFY.NS fundamentals → data/raw/fundamental/INFY.NS_fundamentals.parquet
+2026-02-23 23:44:46,540 - src.data.fundamental_data - INFO - Fetching fundamentals for M&M.NS
+2026-02-23 23:44:47,528 - src.data.fundamental_data - INFO - yfinance provided 6 quarterly records for M&M.NS
+2026-02-23 23:44:47,530 - src.data.fundamental_data - INFO - Saved M&M.NS fundamentals → data/raw/fundamental/M&M.NS_fundamentals.parquet
+2026-02-23 23:44:47,530 - src.data.fundamental_data - INFO - Fetching fundamentals for BHARTIARTL.NS
+2026-02-23 23:44:48,481 - src.data.fundamental_data - INFO - yfinance provided 6 quarterly records for BHARTIARTL.NS
+2026-02-23 23:44:48,483 - src.data.fundamental_data - INFO - Saved BHARTIARTL.NS fundamentals → data/raw/fundamental/BHARTIARTL.NS_fundamentals.parquet
+2026-02-23 23:44:48,483 - src.data.fundamental_data - INFO - Fetching fundamentals for HINDUNILVR.NS
+2026-02-23 23:44:49,329 - src.data.fundamental_data - INFO - yfinance provided 6 quarterly records for HINDUNILVR.NS
+2026-02-23 23:44:49,337 - src.data.fundamental_data - INFO - Saved HINDUNILVR.NS fundamentals → data/raw/fundamental/HINDUNILVR.NS_fundamentals.parquet
+2026-02-23 23:44:49,337 - src.data.fundamental_data - INFO - Fetched fundamentals for 6 / 6 tickers
+2026-02-23 23:44:49,340 - src.data.fundamental_data - INFO - Saved processed fundamental data → data/processed/fundamental_processed.parquet
+2026-02-23 23:44:49,341 - main - INFO - Fundamental data fetched for 6 tickers in 6.2s
+2026-02-23 23:44:49,341 - main - INFO - Fetching macro indicators...
+2026-02-23 23:44:49,341 - src.data.macro_data - INFO - MacroDataFetcher initialised – range 2020-01-01 to 2025-12-31
+2026-02-23 23:44:49,341 - src.data.macro_data - INFO - Fetching USD/INR exchange rate via INR=X (attempt 1/3)
+2026-02-23 23:44:49,677 - src.data.macro_data - INFO - Successfully fetched USD/INR exchange rate – 1561 rows
+2026-02-23 23:44:49,678 - src.data.macro_data - INFO - Collected USD_INR – 1561 rows
+2026-02-23 23:44:49,678 - src.data.macro_data - INFO - Fetching Crude Oil futures (CL=F) via CL=F (attempt 1/3)
+2026-02-23 23:44:50,013 - src.data.macro_data - INFO - Successfully fetched Crude Oil futures (CL=F) – 1509 rows
+2026-02-23 23:44:50,013 - src.data.macro_data - INFO - Collected Crude_Oil – 1509 rows
+2026-02-23 23:44:50,013 - src.data.macro_data - INFO - Fetching Gold futures (GC=F) via GC=F (attempt 1/3)
+2026-02-23 23:44:50,228 - src.data.macro_data - INFO - Successfully fetched Gold futures (GC=F) – 1509 rows
+2026-02-23 23:44:50,228 - src.data.macro_data - INFO - Collected Gold – 1509 rows
+2026-02-23 23:44:50,229 - src.data.macro_data - INFO - Fetching NIFTY 50 index via ^NSEI (attempt 1/3)
+2026-02-23 23:44:50,458 - src.data.macro_data - INFO - Successfully fetched NIFTY 50 index – 1485 rows
+2026-02-23 23:44:50,458 - src.data.macro_data - INFO - Collected Nifty50 – 1485 rows
+2026-02-23 23:44:50,458 - src.data.macro_data - INFO - Fetching India VIX via ^INDIAVIX (attempt 1/3)
+2026-02-23 23:44:50,701 - src.data.macro_data - INFO - Successfully fetched India VIX – 1469 rows
+2026-02-23 23:44:50,701 - src.data.macro_data - INFO - Collected India_VIX – 1469 rows
+2026-02-23 23:44:50,702 - src.data.macro_data - INFO - Fetching India 10Y bond yield proxy via ^IRX (attempt 1/3)
+2026-02-23 23:44:50,952 - src.data.macro_data - INFO - Successfully fetched India 10Y bond yield proxy – 1507 rows
+2026-02-23 23:44:50,952 - src.data.macro_data - INFO - Collected Bond_Yield_10Y – 1507 rows
+2026-02-23 23:44:50,952 - src.data.macro_data - INFO - Generating synthetic inflation proxy data
+2026-02-23 23:44:50,956 - src.data.macro_data - INFO - Generated inflation proxy – 2192 daily records
+2026-02-23 23:44:50,956 - src.data.macro_data - INFO - Collected Inflation – 2192 rows
+2026-02-23 23:44:50,967 - src.data.macro_data - INFO - Saved merged macro indicators → data/raw/macro/macro_indicators.parquet (2192 rows, 7 cols)
+2026-02-23 23:44:50,973 - src.data.macro_data - INFO - Saved processed macro data → data/processed/macro_processed.parquet
+2026-02-23 23:44:50,973 - main - INFO - Macro data fetched (2192 rows) in 1.6s
+2026-02-23 23:44:50,974 - main - INFO - Fetching sentiment data...
+2026-02-23 23:44:50,974 - src.data.sentiment_data - INFO - SentimentDataFetcher initialised – 6 tickers, model=ProsusAI/finbert
+2026-02-23 23:44:57,880 - src.data.sentiment_data - INFO - Falling back to synthetic headlines for RELIANCE.NS
+2026-02-23 23:44:57,917 - src.data.sentiment_data - INFO - Generated 5425 synthetic headlines for RELIANCE.NS (2020-01-01 → 2025-12-31)
+2026-02-23 23:45:00,570 - src.data.sentiment_data - INFO - Loading FinBERT model: ProsusAI/finbert …
+2026-02-23 23:45:03,147 - src.data.sentiment_data - INFO - FinBERT model loaded successfully
+2026-08-11 11:38:35,588 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:35,966 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:35,986 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,045 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,096 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,116 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,116 - src.data.fundamental_data - INFO - FundamentalDataFetcher initialised – 6 tickers
+2026-08-11 11:38:36,118 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,118 - src.data.fundamental_data - INFO - FundamentalDataFetcher initialised – 6 tickers
+2026-08-11 11:38:36,121 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,141 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,144 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,166 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,168 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,171 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,174 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:36,177 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,094 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 11:38:45,098 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,101 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 11:38:45,110 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,112 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 11:38:45,120 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,122 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 11:38:45,129 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,129 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 11:38:45,132 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,134 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 11:38:45,140 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,140 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 11:38:45,143 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,144 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 11:38:45,151 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,151 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 11:38:45,154 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,155 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 11:38:45,161 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,161 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 11:38:45,161 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 11:38:45,161 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 11:38:45,161 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 11:38:45,161 - src.features.feature_pipeline - INFO - FeaturePipeline initialised – train end 2025-09-30, test 2025-10-01 → 2025-12-31
+2026-08-11 11:38:45,164 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:45,167 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 11:38:45,168 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 11:38:45,168 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 11:38:45,168 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 11:38:45,168 - src.features.feature_pipeline - INFO - FeaturePipeline initialised – train end 2025-09-30, test 2025-10-01 → 2025-12-31
+2026-08-11 11:38:45,170 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:49,644 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:49,648 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:49,652 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:49,663 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:49,666 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:49,672 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:49,675 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:49,678 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:49,678 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:49,680 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:49,683 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:49,683 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 11:38:49,685 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 11:38:51,675 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 11:38:51,706 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 11:38:51,709 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:51,712 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:51,712 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 11:38:51,713 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 11:38:51,714 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 11:38:51,729 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 11:38:51,732 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:51,732 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:51,732 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:51,732 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:51,735 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:51,735 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:51,735 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:51,735 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:51,738 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:51,738 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:51,738 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:51,738 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:51,821 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:51,821 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:51,821 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:51,821 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:51,824 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:51,824 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:51,824 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:51,824 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:51,827 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:51,830 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:51,830 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:51,830 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:51,836 - src.models.forecaster - INFO - ============================================================
+Training for TEST.NS (600 rows)
+============================================================
+2026-08-11 11:38:51,838 - src.models.forecaster - INFO - Training ensemble for TEST.NS — models: ['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:51,838 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 11:38:51,840 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 11:38:51,840 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 11:38:51,864 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 11:38:51,874 - src.models.forecaster - INFO -   Training ensemble member: lightgbm
+2026-08-11 11:38:51,874 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 11:38:51,901 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000074  std=0.000008
+2026-08-11 11:38:51,901 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007028  std=0.000423
+2026-08-11 11:38:51,901 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.148023  std=0.009196
+2026-08-11 11:38:51,901 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.420635  std=0.023810
+2026-08-11 11:38:51,901 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.180506  std=0.018187
+2026-08-11 11:38:51,915 - src.models.forecaster - INFO -   Training ensemble member: xgboost
+2026-08-11 11:38:51,915 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 11:38:52,183 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000098  std=0.000001
+2026-08-11 11:38:52,183 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007942  std=0.000221
+2026-08-11 11:38:52,183 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.530883  std=0.127835
+2026-08-11 11:38:52,183 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.476190  std=0.015873
+2026-08-11 11:38:52,183 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.162514  std=0.066412
+2026-08-11 11:38:52,352 - src.models.forecaster - INFO -   Training ensemble member: ridge
+2026-08-11 11:38:52,352 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 11:38:52,359 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000083  std=0.000005
+2026-08-11 11:38:52,359 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007332  std=0.000339
+2026-08-11 11:38:52,359 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.287043  std=0.054469
+2026-08-11 11:38:52,359 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.523810  std=0.015873
+2026-08-11 11:38:52,359 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.065572  std=0.044019
+2026-08-11 11:38:52,359 - src.models.forecaster - INFO - Ensemble for TEST.NS complete — weights: {'lightgbm': '0.377', 'xgboost': '0.285', 'ridge': '0.338'}
+2026-08-11 11:38:52,359 - src.models.forecaster - INFO - Completed training for 1 / 1 tickers
+2026-08-11 11:38:52,364 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:52,364 - src.models.forecaster - INFO - Evaluation — MSE=0.000032, RMSE=0.005621, MAE=0.004800, R²=0.8028, DirAcc=100.00%, IC=0.8208
+2026-08-11 11:38:52,367 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:52,368 - src.models.forecaster - INFO - Evaluation — MSE=0.000632, RMSE=0.025140, MAE=0.021333, R²=-1.6456, DirAcc=100.00%, IC=0.5000
+2026-08-11 11:38:52,371 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:52,380 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:52,380 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:52,380 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:52,380 - src.models.forecaster - INFO - ============================================================
+Training for TEST.NS (600 rows)
+============================================================
+2026-08-11 11:38:52,381 - src.models.forecaster - INFO - Training ensemble for TEST.NS — models: ['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:52,381 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 11:38:52,383 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 11:38:52,383 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 11:38:52,411 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 11:38:52,413 - src.models.forecaster - INFO -   Training ensemble member: lightgbm
+2026-08-11 11:38:52,413 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 11:38:52,446 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000074  std=0.000008
+2026-08-11 11:38:52,446 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007028  std=0.000423
+2026-08-11 11:38:52,446 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.148023  std=0.009196
+2026-08-11 11:38:52,446 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.420635  std=0.023810
+2026-08-11 11:38:52,446 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.180506  std=0.018187
+2026-08-11 11:38:52,460 - src.models.forecaster - INFO -   Training ensemble member: xgboost
+2026-08-11 11:38:52,460 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 11:38:52,749 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000098  std=0.000001
+2026-08-11 11:38:52,749 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007942  std=0.000221
+2026-08-11 11:38:52,749 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.530883  std=0.127835
+2026-08-11 11:38:52,749 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.476190  std=0.015873
+2026-08-11 11:38:52,750 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.162514  std=0.066412
+2026-08-11 11:38:52,889 - src.models.forecaster - INFO -   Training ensemble member: ridge
+2026-08-11 11:38:52,890 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 11:38:52,892 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000083  std=0.000005
+2026-08-11 11:38:52,892 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007332  std=0.000339
+2026-08-11 11:38:52,892 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.287043  std=0.054469
+2026-08-11 11:38:52,892 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.523810  std=0.015873
+2026-08-11 11:38:52,892 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.065572  std=0.044019
+2026-08-11 11:38:52,892 - src.models.forecaster - INFO - Ensemble for TEST.NS complete — weights: {'lightgbm': '0.377', 'xgboost': '0.285', 'ridge': '0.338'}
+2026-08-11 11:38:52,892 - src.models.forecaster - INFO - Completed training for 1 / 1 tickers
+2026-08-11 11:38:52,893 - src.models.forecaster - INFO - Saved lightgbm model → /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-7/test_save_load_roundtrip0/models_test/TEST_NS/lightgbm.joblib
+2026-08-11 11:38:52,895 - src.models.forecaster - INFO - Saved xgboost model → /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-7/test_save_load_roundtrip0/models_test/TEST_NS/xgboost.joblib
+2026-08-11 11:38:52,896 - src.models.forecaster - INFO - Saved ridge model → /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-7/test_save_load_roundtrip0/models_test/TEST_NS/ridge.joblib
+2026-08-11 11:38:52,896 - src.models.forecaster - INFO - All models saved to /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-7/test_save_load_roundtrip0/models_test
+2026-08-11 11:38:52,896 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 11:38:52,896 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 11:38:52,896 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 11:38:52,897 - src.models.forecaster - INFO - Loaded lightgbm model ← /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-7/test_save_load_roundtrip0/models_test/TEST_NS/lightgbm.joblib
+2026-08-11 11:38:52,897 - src.models.forecaster - INFO - Loaded ridge model ← /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-7/test_save_load_roundtrip0/models_test/TEST_NS/ridge.joblib
+2026-08-11 11:38:52,900 - src.models.forecaster - INFO - Loaded xgboost model ← /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-7/test_save_load_roundtrip0/models_test/TEST_NS/xgboost.joblib
+2026-08-11 11:38:52,900 - src.models.forecaster - INFO - Loaded models for 1 tickers from /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-7/test_save_load_roundtrip0/models_test
+2026-08-11 11:38:52,903 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,106 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,109 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,109 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,112 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,113 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,113 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=63 days
+2026-08-11 11:38:53,116 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,117 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,117 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=63 days
+2026-08-11 11:38:53,120 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,120 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,120 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=63 days
+2026-08-11 11:38:53,123 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,123 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,126 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,126 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,128 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,129 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,132 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,132 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,135 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,135 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,138 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,138 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,139 - src.portfolio.metrics - INFO - All metrics computed — Sharpe=-3.4154, MDD=0.2226, Total Return=-0.1639
+2026-08-11 11:38:53,142 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,142 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,142 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,142 - src.portfolio.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 11:38:53,144 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,146 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,146 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,146 - src.portfolio.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 11:38:53,146 - src.portfolio.backtester - INFO - Running backtest: 2025-10-01 → 2025-12-31, 6 tickers, initial_capital=₹1000000
+2026-08-11 11:38:53,148 - src.portfolio.backtester - INFO - Aligned data: 62 dates, 6 tickers
+2026-08-11 11:38:53,148 - src.portfolio.backtester - INFO - Backtest covers 62 trading days.
+2026-08-11 11:38:53,149 - src.portfolio.optimizer - INFO - Generated 3 rebalance dates (monthly) from 2025-10-01 to 2025-12-31
+2026-08-11 11:38:53,149 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=1 days
+2026-08-11 11:38:53,150 - src.portfolio.optimizer - WARNING - All volatilities are zero/NaN; falling back to equal weight.
+2026-08-11 11:38:53,150 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=23 days
+2026-08-11 11:38:53,151 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=43 days
+2026-08-11 11:38:53,153 - src.portfolio.metrics - INFO - All metrics computed — Sharpe=-3.3841, MDD=0.0108, Total Return=0.0019
+2026-08-11 11:38:53,153 - src.portfolio.backtester - INFO - Backtest complete — Final Value=₹1002347, Total Return=0.0019, Sharpe=-3.3841, MDD=0.0108
+2026-08-11 11:38:53,156 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,157 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,157 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,157 - src.portfolio.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 11:38:53,157 - src.portfolio.backtester - INFO - Running forward test: 2025-10-01 → 2025-12-31
+2026-08-11 11:38:53,157 - src.portfolio.backtester - INFO - Running backtest: 2025-10-01 → 2025-12-31, 6 tickers, initial_capital=₹1000000
+2026-08-11 11:38:53,159 - src.portfolio.backtester - INFO - Aligned data: 62 dates, 6 tickers
+2026-08-11 11:38:53,159 - src.portfolio.backtester - INFO - Backtest covers 62 trading days.
+2026-08-11 11:38:53,160 - src.portfolio.optimizer - INFO - Generated 3 rebalance dates (monthly) from 2025-10-01 to 2025-12-31
+2026-08-11 11:38:53,160 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=1 days
+2026-08-11 11:38:53,160 - src.portfolio.optimizer - WARNING - All volatilities are zero/NaN; falling back to equal weight.
+2026-08-11 11:38:53,161 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=23 days
+2026-08-11 11:38:53,162 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=43 days
+2026-08-11 11:38:53,163 - src.portfolio.metrics - INFO - All metrics computed — Sharpe=-3.3841, MDD=0.0108, Total Return=0.0019
+2026-08-11 11:38:53,164 - src.portfolio.backtester - INFO - Backtest complete — Final Value=₹1002347, Total Return=0.0019, Sharpe=-3.3841, MDD=0.0108
+2026-08-11 11:38:53,166 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,167 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,167 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,167 - src.portfolio.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 11:38:53,167 - src.portfolio.backtester - INFO - Running backtest: 2025-10-01 → 2025-12-31, 6 tickers, initial_capital=₹1000000
+2026-08-11 11:38:53,169 - src.portfolio.backtester - INFO - Aligned data: 62 dates, 6 tickers
+2026-08-11 11:38:53,169 - src.portfolio.backtester - INFO - Backtest covers 62 trading days.
+2026-08-11 11:38:53,170 - src.portfolio.optimizer - INFO - Generated 3 rebalance dates (monthly) from 2025-10-01 to 2025-12-31
+2026-08-11 11:38:53,170 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=1 days
+2026-08-11 11:38:53,170 - src.portfolio.optimizer - WARNING - All volatilities are zero/NaN; falling back to equal weight.
+2026-08-11 11:38:53,171 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=23 days
+2026-08-11 11:38:53,172 - src.portfolio.optimizer - INFO - Optimising portfolio — method=inverse_volatility, n_assets=6, lookback=43 days
+2026-08-11 11:38:53,174 - src.portfolio.metrics - INFO - All metrics computed — Sharpe=-3.3841, MDD=0.0108, Total Return=0.0019
+2026-08-11 11:38:53,174 - src.portfolio.backtester - INFO - Backtest complete — Final Value=₹1002347, Total Return=0.0019, Sharpe=-3.3841, MDD=0.0108
+2026-08-11 11:38:53,175 - src.portfolio.metrics - INFO - Performance report saved to reports/performance_report.txt
+2026-08-11 11:38:53,460 - src.portfolio.metrics - INFO - Equity curve saved to reports/equity_curve.png
+2026-08-11 11:38:53,531 - src.portfolio.backtester - INFO - Weight allocation chart saved to reports/weight_allocation.png
+2026-08-11 11:38:53,531 - src.portfolio.backtester - INFO - Report generated — 2 figures, text report length=1194
+2026-08-11 11:38:53,534 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:38:53,534 - src.portfolio.optimizer - INFO - PortfolioOptimizer initialised — method=inverse_volatility, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 11:38:53,534 - src.portfolio.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 11:38:53,534 - src.portfolio.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 11:38:53,537 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:39:03,353 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:39:03,476 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 11:39:04,236 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:34:56,305 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:46,331 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:46,332 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=200, val=30, step=30, expanding=True, purge=5
+2026-08-11 12:35:46,332 - src.models.walk_forward - INFO - Starting walk-forward CV — 4 folds, 350 samples, metrics=['mse', 'direction_accuracy', 'ic']
+2026-08-11 12:35:46,458 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000100  std=0.000012
+2026-08-11 12:35:46,458 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.566667  std=0.097183
+2026-08-11 12:35:46,458 - src.models.walk_forward - INFO - CV metric ic                   — mean=0.059018  std=0.206911
+2026-08-11 12:35:52,354 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,498 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:35:52,503 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,503 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:35:52,507 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,508 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:35:52,535 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,536 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:35:52,542 - src.data.market_data - INFO - Fetching RELIANCE.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:35:52,544 - src.data.market_data - INFO - Successfully fetched RELIANCE.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:35:52,583 - src.data.market_data - INFO - Saved RELIANCE.NS OHLCV data → data/raw/market/RELIANCE.NS_ohlcv.parquet
+2026-08-11 12:35:52,583 - src.data.market_data - INFO - Fetching HDFCBANK.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:35:52,584 - src.data.market_data - INFO - Successfully fetched HDFCBANK.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:35:52,584 - src.data.market_data - INFO - Saved HDFCBANK.NS OHLCV data → data/raw/market/HDFCBANK.NS_ohlcv.parquet
+2026-08-11 12:35:52,585 - src.data.market_data - INFO - Fetching INFY.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:35:52,585 - src.data.market_data - INFO - Successfully fetched INFY.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:35:52,586 - src.data.market_data - INFO - Saved INFY.NS OHLCV data → data/raw/market/INFY.NS_ohlcv.parquet
+2026-08-11 12:35:52,586 - src.data.market_data - INFO - Fetching M&M.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:35:52,586 - src.data.market_data - INFO - Successfully fetched M&M.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:35:52,587 - src.data.market_data - INFO - Saved M&M.NS OHLCV data → data/raw/market/M&M.NS_ohlcv.parquet
+2026-08-11 12:35:52,587 - src.data.market_data - INFO - Fetching BHARTIARTL.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:35:52,587 - src.data.market_data - INFO - Successfully fetched BHARTIARTL.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:35:52,588 - src.data.market_data - INFO - Saved BHARTIARTL.NS OHLCV data → data/raw/market/BHARTIARTL.NS_ohlcv.parquet
+2026-08-11 12:35:52,588 - src.data.market_data - INFO - Fetching HINDUNILVR.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:35:52,588 - src.data.market_data - INFO - Successfully fetched HINDUNILVR.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:35:52,589 - src.data.market_data - INFO - Saved HINDUNILVR.NS OHLCV data → data/raw/market/HINDUNILVR.NS_ohlcv.parquet
+2026-08-11 12:35:52,589 - src.data.market_data - INFO - Fetched OHLCV data for 6 / 6 tickers
+2026-08-11 12:35:52,591 - src.data.market_data - INFO - Saved processed market data → data/processed/market_processed.parquet
+2026-08-11 12:35:52,596 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,596 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:35:52,701 - src.data.market_data - INFO - Loaded cached RELIANCE.NS OHLCV data (100 rows) from data/raw/market/RELIANCE.NS_ohlcv.parquet
+2026-08-11 12:35:52,702 - src.data.market_data - INFO - Loaded cached HDFCBANK.NS OHLCV data (100 rows) from data/raw/market/HDFCBANK.NS_ohlcv.parquet
+2026-08-11 12:35:52,703 - src.data.market_data - INFO - Loaded cached INFY.NS OHLCV data (100 rows) from data/raw/market/INFY.NS_ohlcv.parquet
+2026-08-11 12:35:52,704 - src.data.market_data - INFO - Loaded cached M&M.NS OHLCV data (100 rows) from data/raw/market/M&M.NS_ohlcv.parquet
+2026-08-11 12:35:52,704 - src.data.market_data - INFO - Loaded cached BHARTIARTL.NS OHLCV data (100 rows) from data/raw/market/BHARTIARTL.NS_ohlcv.parquet
+2026-08-11 12:35:52,705 - src.data.market_data - INFO - Loaded cached HINDUNILVR.NS OHLCV data (100 rows) from data/raw/market/HINDUNILVR.NS_ohlcv.parquet
+2026-08-11 12:35:52,705 - src.data.market_data - INFO - Loaded cached data for 6 / 6 tickers
+2026-08-11 12:35:52,711 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,712 - src.data.fundamental_data - INFO - FundamentalDataFetcher initialised – 6 tickers
+2026-08-11 12:35:52,716 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,716 - src.data.fundamental_data - INFO - FundamentalDataFetcher initialised – 6 tickers
+2026-08-11 12:35:52,721 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,721 - src.data.macro_data - INFO - MacroDataFetcher initialised – range 2020-01-01 to 2025-12-31
+2026-08-11 12:35:52,726 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,730 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,730 - src.data.sentiment_data - INFO - SentimentDataFetcher initialised – 6 tickers, model=ProsusAI/finbert
+2026-08-11 12:35:52,735 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,739 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,744 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,748 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:52,753 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,272 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:35:53,277 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,278 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:35:53,287 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,288 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:35:53,296 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,297 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:35:53,305 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,305 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 12:35:53,309 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,313 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 12:35:53,321 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,324 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:35:53,329 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,331 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:35:53,338 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,339 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:35:53,343 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,344 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:35:53,352 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,352 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:35:53,352 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 12:35:53,352 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:35:53,352 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:35:53,352 - src.features.feature_pipeline - INFO - FeaturePipeline initialised – train end 2025-09-30, test 2025-10-01 → 2025-12-31
+2026-08-11 12:35:53,357 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,360 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:35:53,360 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 12:35:53,360 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:35:53,360 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:35:53,360 - src.features.feature_pipeline - INFO - FeaturePipeline initialised – train end 2025-09-30, test 2025-10-01 → 2025-12-31
+2026-08-11 12:35:53,364 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,490 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,495 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,497 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,508 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,510 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,518 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,520 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,525 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,525 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:53,529 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,532 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:53,532 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 12:35:53,533 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 12:35:53,552 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 12:35:53,630 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 12:35:53,634 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,637 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:53,637 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 12:35:53,638 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 12:35:53,638 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 12:35:53,711 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 12:35:53,715 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,715 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,716 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:53,716 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:53,720 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,720 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,720 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:53,720 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:53,725 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,725 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,725 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:53,725 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:53,759 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,759 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,759 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:53,759 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:53,764 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,764 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,764 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:53,764 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:53,768 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:53,771 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:53,771 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:53,771 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:53,771 - src.models.forecaster - INFO - ============================================================
+Training for TEST.NS (600 rows)
+============================================================
+2026-08-11 12:35:53,772 - src.models.forecaster - INFO - Training ensemble for TEST.NS — models: ['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:53,772 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 12:35:53,773 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 12:35:53,773 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 12:35:53,847 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 12:35:53,857 - src.models.forecaster - INFO -   Training ensemble member: lightgbm
+2026-08-11 12:35:53,858 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:35:53,987 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000074  std=0.000008
+2026-08-11 12:35:53,987 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007028  std=0.000423
+2026-08-11 12:35:53,987 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.148023  std=0.009196
+2026-08-11 12:35:53,988 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.420635  std=0.023810
+2026-08-11 12:35:53,988 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.180506  std=0.018187
+2026-08-11 12:35:54,062 - src.models.forecaster - INFO -   Training ensemble member: xgboost
+2026-08-11 12:35:54,062 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:35:54,951 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000097  std=0.000003
+2026-08-11 12:35:54,951 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007946  std=0.000296
+2026-08-11 12:35:54,952 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.512166  std=0.107288
+2026-08-11 12:35:54,952 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.492063  std=0.000000
+2026-08-11 12:35:54,952 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.142209  std=0.046587
+2026-08-11 12:35:55,428 - src.models.forecaster - INFO -   Training ensemble member: ridge
+2026-08-11 12:35:55,428 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:35:55,434 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000083  std=0.000005
+2026-08-11 12:35:55,434 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007332  std=0.000339
+2026-08-11 12:35:55,434 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.287043  std=0.054469
+2026-08-11 12:35:55,434 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.523810  std=0.015873
+2026-08-11 12:35:55,434 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.065572  std=0.044019
+2026-08-11 12:35:55,434 - src.models.forecaster - INFO -   Evaluating benchmark model: sarimax
+2026-08-11 12:35:55,435 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:35:55,541 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000072  std=0.000008
+2026-08-11 12:35:55,541 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.006893  std=0.000442
+2026-08-11 12:35:55,541 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.102193  std=0.018948
+2026-08-11 12:35:55,542 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.412698  std=0.015873
+2026-08-11 12:35:55,542 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.089971  std=0.024671
+2026-08-11 12:35:55,542 - src.models.forecaster - INFO - Ensemble for TEST.NS complete — weights: {'lightgbm': '0.376', 'xgboost': '0.287', 'ridge': '0.337'}
+2026-08-11 12:35:55,542 - src.models.forecaster - INFO - Completed training for 1 / 1 tickers
+2026-08-11 12:35:55,548 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:55,549 - src.models.forecaster - INFO - Evaluation — MSE=0.000032, RMSE=0.005621, MAE=0.004800, R²=0.8028, DirAcc=100.00%, IC=0.8208
+2026-08-11 12:35:55,554 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:55,554 - src.models.forecaster - INFO - Evaluation — MSE=0.000632, RMSE=0.025140, MAE=0.021333, R²=-1.6456, DirAcc=100.00%, IC=0.5000
+2026-08-11 12:35:55,559 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:55,567 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:55,567 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:55,567 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:55,567 - src.models.forecaster - INFO - ============================================================
+Training for TEST.NS (600 rows)
+============================================================
+2026-08-11 12:35:55,567 - src.models.forecaster - INFO - Training ensemble for TEST.NS — models: ['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:55,567 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 12:35:55,568 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 12:35:55,569 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 12:35:55,642 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 12:35:55,643 - src.models.forecaster - INFO -   Training ensemble member: lightgbm
+2026-08-11 12:35:55,643 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:35:55,780 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000074  std=0.000008
+2026-08-11 12:35:55,780 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007028  std=0.000423
+2026-08-11 12:35:55,780 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.148023  std=0.009196
+2026-08-11 12:35:55,780 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.420635  std=0.023810
+2026-08-11 12:35:55,780 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.180506  std=0.018187
+2026-08-11 12:35:55,857 - src.models.forecaster - INFO -   Training ensemble member: xgboost
+2026-08-11 12:35:55,857 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:35:56,742 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000097  std=0.000003
+2026-08-11 12:35:56,742 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007946  std=0.000296
+2026-08-11 12:35:56,742 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.512166  std=0.107288
+2026-08-11 12:35:56,742 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.492063  std=0.000000
+2026-08-11 12:35:56,742 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.142209  std=0.046587
+2026-08-11 12:35:57,223 - src.models.forecaster - INFO -   Training ensemble member: ridge
+2026-08-11 12:35:57,224 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:35:57,226 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000083  std=0.000005
+2026-08-11 12:35:57,226 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007332  std=0.000339
+2026-08-11 12:35:57,226 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.287043  std=0.054469
+2026-08-11 12:35:57,226 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.523810  std=0.015873
+2026-08-11 12:35:57,226 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.065572  std=0.044019
+2026-08-11 12:35:57,226 - src.models.forecaster - INFO -   Evaluating benchmark model: sarimax
+2026-08-11 12:35:57,226 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:35:57,266 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000072  std=0.000008
+2026-08-11 12:35:57,266 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.006893  std=0.000442
+2026-08-11 12:35:57,266 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.102193  std=0.018948
+2026-08-11 12:35:57,266 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.412698  std=0.015873
+2026-08-11 12:35:57,266 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.089971  std=0.024671
+2026-08-11 12:35:57,266 - src.models.forecaster - INFO - Ensemble for TEST.NS complete — weights: {'lightgbm': '0.376', 'xgboost': '0.287', 'ridge': '0.337'}
+2026-08-11 12:35:57,266 - src.models.forecaster - INFO - Completed training for 1 / 1 tickers
+2026-08-11 12:35:57,267 - src.models.forecaster - INFO - Saved lightgbm model → /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-10/test_save_load_roundtrip0/models_test/TEST_NS/lightgbm.joblib
+2026-08-11 12:35:57,269 - src.models.forecaster - INFO - Saved xgboost model → /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-10/test_save_load_roundtrip0/models_test/TEST_NS/xgboost.joblib
+2026-08-11 12:35:57,269 - src.models.forecaster - INFO - Saved ridge model → /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-10/test_save_load_roundtrip0/models_test/TEST_NS/ridge.joblib
+2026-08-11 12:35:57,270 - src.models.forecaster - INFO - All models saved to /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-10/test_save_load_roundtrip0/models_test
+2026-08-11 12:35:57,270 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:35:57,270 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:35:57,270 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:35:57,271 - src.models.forecaster - INFO - Loaded lightgbm model ← /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-10/test_save_load_roundtrip0/models_test/TEST_NS/lightgbm.joblib
+2026-08-11 12:35:57,271 - src.models.forecaster - INFO - Loaded ridge model ← /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-10/test_save_load_roundtrip0/models_test/TEST_NS/ridge.joblib
+2026-08-11 12:35:57,273 - src.models.forecaster - INFO - Loaded xgboost model ← /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-10/test_save_load_roundtrip0/models_test/TEST_NS/xgboost.joblib
+2026-08-11 12:35:57,273 - src.models.forecaster - INFO - Loaded models for 1 tickers from /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-10/test_save_load_roundtrip0/models_test
+2026-08-11 12:35:57,278 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,286 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,293 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,302 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,311 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,320 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,327 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,334 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,342 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,349 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,356 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,364 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,370 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,384 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,398 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,412 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:35:57,419 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:49,991 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,189 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:38:50,194 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,195 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:38:50,199 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,203 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:38:50,238 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,239 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:38:50,248 - src.data.market_data - INFO - Fetching RELIANCE.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:38:50,252 - src.data.market_data - INFO - Successfully fetched RELIANCE.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:38:50,306 - src.data.market_data - INFO - Saved RELIANCE.NS OHLCV data → data/raw/market/RELIANCE.NS_ohlcv.parquet
+2026-08-11 12:38:50,306 - src.data.market_data - INFO - Fetching HDFCBANK.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:38:50,307 - src.data.market_data - INFO - Successfully fetched HDFCBANK.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:38:50,308 - src.data.market_data - INFO - Saved HDFCBANK.NS OHLCV data → data/raw/market/HDFCBANK.NS_ohlcv.parquet
+2026-08-11 12:38:50,308 - src.data.market_data - INFO - Fetching INFY.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:38:50,309 - src.data.market_data - INFO - Successfully fetched INFY.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:38:50,309 - src.data.market_data - INFO - Saved INFY.NS OHLCV data → data/raw/market/INFY.NS_ohlcv.parquet
+2026-08-11 12:38:50,309 - src.data.market_data - INFO - Fetching M&M.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:38:50,310 - src.data.market_data - INFO - Successfully fetched M&M.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:38:50,311 - src.data.market_data - INFO - Saved M&M.NS OHLCV data → data/raw/market/M&M.NS_ohlcv.parquet
+2026-08-11 12:38:50,311 - src.data.market_data - INFO - Fetching BHARTIARTL.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:38:50,311 - src.data.market_data - INFO - Successfully fetched BHARTIARTL.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:38:50,312 - src.data.market_data - INFO - Saved BHARTIARTL.NS OHLCV data → data/raw/market/BHARTIARTL.NS_ohlcv.parquet
+2026-08-11 12:38:50,312 - src.data.market_data - INFO - Fetching HINDUNILVR.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:38:50,312 - src.data.market_data - INFO - Successfully fetched HINDUNILVR.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:38:50,313 - src.data.market_data - INFO - Saved HINDUNILVR.NS OHLCV data → data/raw/market/HINDUNILVR.NS_ohlcv.parquet
+2026-08-11 12:38:50,313 - src.data.market_data - INFO - Fetched OHLCV data for 6 / 6 tickers
+2026-08-11 12:38:50,315 - src.data.market_data - INFO - Saved processed market data → data/processed/market_processed.parquet
+2026-08-11 12:38:50,321 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,321 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:38:50,380 - src.data.market_data - INFO - Loaded cached RELIANCE.NS OHLCV data (100 rows) from data/raw/market/RELIANCE.NS_ohlcv.parquet
+2026-08-11 12:38:50,381 - src.data.market_data - INFO - Loaded cached HDFCBANK.NS OHLCV data (100 rows) from data/raw/market/HDFCBANK.NS_ohlcv.parquet
+2026-08-11 12:38:50,381 - src.data.market_data - INFO - Loaded cached INFY.NS OHLCV data (100 rows) from data/raw/market/INFY.NS_ohlcv.parquet
+2026-08-11 12:38:50,382 - src.data.market_data - INFO - Loaded cached M&M.NS OHLCV data (100 rows) from data/raw/market/M&M.NS_ohlcv.parquet
+2026-08-11 12:38:50,383 - src.data.market_data - INFO - Loaded cached BHARTIARTL.NS OHLCV data (100 rows) from data/raw/market/BHARTIARTL.NS_ohlcv.parquet
+2026-08-11 12:38:50,383 - src.data.market_data - INFO - Loaded cached HINDUNILVR.NS OHLCV data (100 rows) from data/raw/market/HINDUNILVR.NS_ohlcv.parquet
+2026-08-11 12:38:50,383 - src.data.market_data - INFO - Loaded cached data for 6 / 6 tickers
+2026-08-11 12:38:50,390 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,391 - src.data.fundamental_data - INFO - FundamentalDataFetcher initialised – 6 tickers
+2026-08-11 12:38:50,396 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,396 - src.data.fundamental_data - INFO - FundamentalDataFetcher initialised – 6 tickers
+2026-08-11 12:38:50,401 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,402 - src.data.macro_data - INFO - MacroDataFetcher initialised – range 2020-01-01 to 2025-12-31
+2026-08-11 12:38:50,406 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,411 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,411 - src.data.sentiment_data - INFO - SentimentDataFetcher initialised – 6 tickers, model=ProsusAI/finbert
+2026-08-11 12:38:50,416 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,421 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,426 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:38:50,430 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:00,271 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:00,442 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:39:00,502 - src.data.market_data - INFO - Loaded cached RELIANCE.NS OHLCV data (100 rows) from data/raw/market/RELIANCE.NS_ohlcv.parquet
+2026-08-11 12:39:00,503 - src.data.market_data - INFO - Loaded cached HDFCBANK.NS OHLCV data (100 rows) from data/raw/market/HDFCBANK.NS_ohlcv.parquet
+2026-08-11 12:39:00,504 - src.data.market_data - INFO - Loaded cached INFY.NS OHLCV data (100 rows) from data/raw/market/INFY.NS_ohlcv.parquet
+2026-08-11 12:39:00,504 - src.data.market_data - INFO - Loaded cached M&M.NS OHLCV data (100 rows) from data/raw/market/M&M.NS_ohlcv.parquet
+2026-08-11 12:39:00,505 - src.data.market_data - INFO - Loaded cached BHARTIARTL.NS OHLCV data (100 rows) from data/raw/market/BHARTIARTL.NS_ohlcv.parquet
+2026-08-11 12:39:00,506 - src.data.market_data - INFO - Loaded cached HINDUNILVR.NS OHLCV data (100 rows) from data/raw/market/HINDUNILVR.NS_ohlcv.parquet
+2026-08-11 12:39:00,506 - src.data.market_data - INFO - Loaded cached data for 6 / 6 tickers
+2026-08-11 12:39:53,928 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,090 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:39:54,095 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,095 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:39:54,099 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,103 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:39:54,103 - src.data.market_data - INFO - Fetching RELIANCE.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:39:54,107 - src.data.market_data - INFO - Successfully fetched RELIANCE.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:39:54,111 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,112 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:39:54,119 - src.data.market_data - INFO - Fetching RELIANCE.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:39:54,121 - src.data.market_data - INFO - Successfully fetched RELIANCE.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:39:54,154 - src.data.market_data - INFO - Saved RELIANCE.NS OHLCV data → data/raw/market/RELIANCE.NS_ohlcv.parquet
+2026-08-11 12:39:54,154 - src.data.market_data - INFO - Fetching HDFCBANK.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:39:54,155 - src.data.market_data - INFO - Successfully fetched HDFCBANK.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:39:54,155 - src.data.market_data - INFO - Saved HDFCBANK.NS OHLCV data → data/raw/market/HDFCBANK.NS_ohlcv.parquet
+2026-08-11 12:39:54,155 - src.data.market_data - INFO - Fetching INFY.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:39:54,156 - src.data.market_data - INFO - Successfully fetched INFY.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:39:54,156 - src.data.market_data - INFO - Saved INFY.NS OHLCV data → data/raw/market/INFY.NS_ohlcv.parquet
+2026-08-11 12:39:54,156 - src.data.market_data - INFO - Fetching M&M.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:39:54,157 - src.data.market_data - INFO - Successfully fetched M&M.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:39:54,157 - src.data.market_data - INFO - Saved M&M.NS OHLCV data → data/raw/market/M&M.NS_ohlcv.parquet
+2026-08-11 12:39:54,157 - src.data.market_data - INFO - Fetching BHARTIARTL.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:39:54,158 - src.data.market_data - INFO - Successfully fetched BHARTIARTL.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:39:54,158 - src.data.market_data - INFO - Saved BHARTIARTL.NS OHLCV data → data/raw/market/BHARTIARTL.NS_ohlcv.parquet
+2026-08-11 12:39:54,158 - src.data.market_data - INFO - Fetching HINDUNILVR.NS (attempt 1/3) for 2020-01-01 → 2025-12-31
+2026-08-11 12:39:54,159 - src.data.market_data - INFO - Successfully fetched HINDUNILVR.NS – 100 rows, 2024-01-01 → 2024-05-17
+2026-08-11 12:39:54,159 - src.data.market_data - INFO - Saved HINDUNILVR.NS OHLCV data → data/raw/market/HINDUNILVR.NS_ohlcv.parquet
+2026-08-11 12:39:54,159 - src.data.market_data - INFO - Fetched OHLCV data for 6 / 6 tickers
+2026-08-11 12:39:54,162 - src.data.market_data - INFO - Saved processed market data → data/processed/market_processed.parquet
+2026-08-11 12:39:54,167 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,167 - src.data.market_data - INFO - MarketDataFetcher initialised – 6 tickers, range 2020-01-01 to 2025-12-31
+2026-08-11 12:39:54,167 - src.data.market_data - WARNING - No cached data found for RELIANCE.NS at data/raw/nonexistent_market_test/RELIANCE.NS_ohlcv.parquet
+2026-08-11 12:39:54,167 - src.data.market_data - WARNING - No cached data found for HDFCBANK.NS at data/raw/nonexistent_market_test/HDFCBANK.NS_ohlcv.parquet
+2026-08-11 12:39:54,167 - src.data.market_data - WARNING - No cached data found for INFY.NS at data/raw/nonexistent_market_test/INFY.NS_ohlcv.parquet
+2026-08-11 12:39:54,167 - src.data.market_data - WARNING - No cached data found for M&M.NS at data/raw/nonexistent_market_test/M&M.NS_ohlcv.parquet
+2026-08-11 12:39:54,167 - src.data.market_data - WARNING - No cached data found for BHARTIARTL.NS at data/raw/nonexistent_market_test/BHARTIARTL.NS_ohlcv.parquet
+2026-08-11 12:39:54,167 - src.data.market_data - WARNING - No cached data found for HINDUNILVR.NS at data/raw/nonexistent_market_test/HINDUNILVR.NS_ohlcv.parquet
+2026-08-11 12:39:54,167 - src.data.market_data - INFO - Loaded cached data for 0 / 6 tickers
+2026-08-11 12:39:54,172 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,172 - src.data.fundamental_data - INFO - FundamentalDataFetcher initialised – 6 tickers
+2026-08-11 12:39:54,177 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,177 - src.data.fundamental_data - INFO - FundamentalDataFetcher initialised – 6 tickers
+2026-08-11 12:39:54,181 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,181 - src.data.macro_data - INFO - MacroDataFetcher initialised – range 2020-01-01 to 2025-12-31
+2026-08-11 12:39:54,186 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,190 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,190 - src.data.sentiment_data - INFO - SentimentDataFetcher initialised – 6 tickers, model=ProsusAI/finbert
+2026-08-11 12:39:54,195 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,200 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,204 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,209 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,213 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,889 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:39:54,894 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,895 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:39:54,895 - src.features.technical_features - INFO - Generating technical features – 300 rows
+2026-08-11 12:39:54,905 - src.features.technical_features - INFO - Technical features generated – 51 features, 300 rows
+2026-08-11 12:39:54,909 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,911 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:39:54,911 - src.features.technical_features - INFO - Generating technical features – 300 rows
+2026-08-11 12:39:54,917 - src.features.technical_features - INFO - Technical features generated – 51 features, 300 rows
+2026-08-11 12:39:54,922 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,924 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:39:54,924 - src.features.technical_features - INFO - Generating technical features – 300 rows
+2026-08-11 12:39:54,930 - src.features.technical_features - INFO - Technical features generated – 51 features, 300 rows
+2026-08-11 12:39:54,935 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,935 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 12:39:54,939 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,941 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 12:39:54,982 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,982 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:39:54,987 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,988 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:39:54,988 - src.features.macro_features - INFO - Generating macro features – 300 rows
+2026-08-11 12:39:54,992 - src.features.macro_features - INFO - Macro features generated – 31 features, 300 rows, lag 1 day(s)
+2026-08-11 12:39:54,996 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:54,996 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:39:55,001 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,002 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:39:55,002 - src.features.sentiment_features - INFO - Generating sentiment features – 300 rows
+2026-08-11 12:39:55,004 - src.features.sentiment_features - INFO - Sentiment features generated – 13 features, 300 rows, lag 1 day(s)
+2026-08-11 12:39:55,008 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,008 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:39:55,008 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 12:39:55,008 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:39:55,009 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:39:55,009 - src.features.feature_pipeline - INFO - FeaturePipeline initialised – train end 2025-09-30, test 2025-10-01 → 2025-12-31
+2026-08-11 12:39:55,013 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,016 - src.features.technical_features - INFO - TechnicalFeatureEngineer initialised – SMA [5, 10, 20, 50], EMA [12, 26], RSI 14, lags [1, 2, 3, 5, 10, 21]
+2026-08-11 12:39:55,016 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days
+2026-08-11 12:39:55,016 - src.features.macro_features - INFO - MacroFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:39:55,016 - src.features.sentiment_features - INFO - SentimentFeatureEngineer initialised – lag 1 day(s)
+2026-08-11 12:39:55,016 - src.features.feature_pipeline - INFO - FeaturePipeline initialised – train end 2025-09-30, test 2025-10-01 → 2025-12-31
+2026-08-11 12:39:55,017 - src.features.feature_pipeline - INFO - Building feature matrix for RELIANCE.NS
+2026-08-11 12:39:55,017 - src.features.technical_features - INFO - Generating technical features – 300 rows
+2026-08-11 12:39:55,023 - src.features.technical_features - INFO - Technical features generated – 51 features, 300 rows
+2026-08-11 12:39:55,023 - src.features.fundamental_features - INFO - Generating fundamental features
+2026-08-11 12:39:55,024 - src.features.fundamental_features - INFO - Aligned quarterly data to daily – 205 rows, lag 45 days
+2026-08-11 12:39:55,024 - src.features.fundamental_features - WARNING - Column PE_Ratio not found; skipping PE_Change_QoQ
+2026-08-11 12:39:55,024 - src.features.fundamental_features - WARNING - Column EPS not found; skipping EPS_Growth_QoQ
+2026-08-11 12:39:55,024 - src.features.fundamental_features - WARNING - Column ROE not found; skipping ROE_Change_QoQ
+2026-08-11 12:39:55,024 - src.features.fundamental_features - WARNING - Column Debt_to_Equity not found; skipping Debt_to_Equity_Change_QoQ
+2026-08-11 12:39:55,024 - src.features.fundamental_features - INFO - Fundamental features generated – 4 features, 300 rows
+2026-08-11 12:39:55,024 - src.features.macro_features - INFO - Generating macro features – 300 rows
+2026-08-11 12:39:55,028 - src.features.macro_features - INFO - Macro features generated – 31 features, 300 rows, lag 1 day(s)
+2026-08-11 12:39:55,028 - src.features.sentiment_features - INFO - Generating sentiment features – 300 rows
+2026-08-11 12:39:55,029 - src.features.sentiment_features - INFO - Sentiment features generated – 13 features, 300 rows, lag 1 day(s)
+2026-08-11 12:39:55,033 - src.features.feature_pipeline - INFO - Feature matrix for RELIANCE.NS – 98 features, 300 rows
+2026-08-11 12:39:55,037 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,189 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,193 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,196 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,200 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,203 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,207 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,209 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,214 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,214 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:55,218 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,221 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:55,221 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 12:39:55,222 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 12:39:55,241 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 12:39:55,327 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 12:39:55,332 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,335 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:55,336 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 12:39:55,337 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 12:39:55,337 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 12:39:55,408 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 12:39:55,413 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,413 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,413 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:55,413 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:55,418 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,418 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,418 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:55,418 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:55,423 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,423 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,423 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:55,423 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:55,454 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,454 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,454 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:55,454 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:55,459 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,459 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,459 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:55,459 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:55,464 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:55,466 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:55,466 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:55,466 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:55,466 - src.models.forecaster - INFO - ============================================================
+Training for TEST.NS (600 rows)
+============================================================
+2026-08-11 12:39:55,467 - src.models.forecaster - INFO - Training ensemble for TEST.NS — models: ['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:55,467 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 12:39:55,468 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 12:39:55,468 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 12:39:55,529 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 12:39:55,538 - src.models.forecaster - INFO -   Training ensemble member: lightgbm
+2026-08-11 12:39:55,538 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:39:55,645 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000074  std=0.000008
+2026-08-11 12:39:55,645 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007028  std=0.000423
+2026-08-11 12:39:55,646 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.148023  std=0.009196
+2026-08-11 12:39:55,646 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.420635  std=0.023810
+2026-08-11 12:39:55,646 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.180506  std=0.018187
+2026-08-11 12:39:55,719 - src.models.forecaster - INFO -   Training ensemble member: xgboost
+2026-08-11 12:39:55,719 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:39:56,583 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000097  std=0.000003
+2026-08-11 12:39:56,583 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007946  std=0.000296
+2026-08-11 12:39:56,583 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.512166  std=0.107288
+2026-08-11 12:39:56,583 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.492063  std=0.000000
+2026-08-11 12:39:56,584 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.142209  std=0.046587
+2026-08-11 12:39:57,038 - src.models.forecaster - INFO -   Training ensemble member: ridge
+2026-08-11 12:39:57,038 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:39:57,041 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000083  std=0.000005
+2026-08-11 12:39:57,041 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007332  std=0.000339
+2026-08-11 12:39:57,041 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.287043  std=0.054469
+2026-08-11 12:39:57,041 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.523810  std=0.015873
+2026-08-11 12:39:57,041 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.065572  std=0.044019
+2026-08-11 12:39:57,042 - src.models.forecaster - INFO -   Evaluating benchmark model: sarimax
+2026-08-11 12:39:57,042 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:39:57,179 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000072  std=0.000008
+2026-08-11 12:39:57,179 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.006893  std=0.000442
+2026-08-11 12:39:57,179 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.102193  std=0.018948
+2026-08-11 12:39:57,179 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.412698  std=0.015873
+2026-08-11 12:39:57,179 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.089971  std=0.024671
+2026-08-11 12:39:57,179 - src.models.forecaster - INFO - Ensemble for TEST.NS complete — weights: {'lightgbm': '0.376', 'xgboost': '0.287', 'ridge': '0.337'}
+2026-08-11 12:39:57,179 - src.models.forecaster - INFO - Completed training for 1 / 1 tickers
+2026-08-11 12:39:57,185 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:57,186 - src.models.forecaster - INFO - Evaluation — MSE=0.000032, RMSE=0.005621, MAE=0.004800, R²=0.8028, DirAcc=100.00%, IC=0.8208
+2026-08-11 12:39:57,190 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:57,191 - src.models.forecaster - INFO - Evaluation — MSE=0.000632, RMSE=0.025140, MAE=0.021333, R²=-1.6456, DirAcc=100.00%, IC=0.5000
+2026-08-11 12:39:57,195 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:57,203 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:57,203 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:57,203 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:57,203 - src.models.forecaster - INFO - ============================================================
+Training for TEST.NS (600 rows)
+============================================================
+2026-08-11 12:39:57,204 - src.models.forecaster - INFO - Training ensemble for TEST.NS — models: ['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:57,204 - src.models.feature_selection - INFO - Removing collinear features with |ρ| > 0.90 from 20 features
+2026-08-11 12:39:57,205 - src.models.feature_selection - INFO - Collinearity filter: kept 20 / 20 features (dropped 0)
+2026-08-11 12:39:57,205 - src.models.feature_selection - INFO - Running RFE: 20 features → 20, step=5, estimator=LGBMRegressor
+2026-08-11 12:39:57,272 - src.models.feature_selection - INFO - RFE complete — selected 20 / 20 features
+2026-08-11 12:39:57,273 - src.models.forecaster - INFO -   Training ensemble member: lightgbm
+2026-08-11 12:39:57,273 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:39:57,421 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000074  std=0.000008
+2026-08-11 12:39:57,421 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007028  std=0.000423
+2026-08-11 12:39:57,421 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.148023  std=0.009196
+2026-08-11 12:39:57,421 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.420635  std=0.023810
+2026-08-11 12:39:57,421 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.180506  std=0.018187
+2026-08-11 12:39:57,492 - src.models.forecaster - INFO -   Training ensemble member: xgboost
+2026-08-11 12:39:57,493 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:39:58,343 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000097  std=0.000003
+2026-08-11 12:39:58,343 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007946  std=0.000296
+2026-08-11 12:39:58,344 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.512166  std=0.107288
+2026-08-11 12:39:58,344 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.492063  std=0.000000
+2026-08-11 12:39:58,344 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.142209  std=0.046587
+2026-08-11 12:39:58,802 - src.models.forecaster - INFO -   Training ensemble member: ridge
+2026-08-11 12:39:58,802 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:39:58,804 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000083  std=0.000005
+2026-08-11 12:39:58,804 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.007332  std=0.000339
+2026-08-11 12:39:58,804 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.287043  std=0.054469
+2026-08-11 12:39:58,804 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.523810  std=0.015873
+2026-08-11 12:39:58,804 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.065572  std=0.044019
+2026-08-11 12:39:58,805 - src.models.forecaster - INFO -   Evaluating benchmark model: sarimax
+2026-08-11 12:39:58,805 - src.models.walk_forward - INFO - Starting walk-forward CV — 2 folds, 600 samples, metrics=['mse', 'mae', 'r2', 'direction_accuracy', 'ic']
+2026-08-11 12:39:58,844 - src.models.walk_forward - INFO - CV metric mse                  — mean=0.000072  std=0.000008
+2026-08-11 12:39:58,844 - src.models.walk_forward - INFO - CV metric mae                  — mean=0.006893  std=0.000442
+2026-08-11 12:39:58,844 - src.models.walk_forward - INFO - CV metric r2                   — mean=-0.102193  std=0.018948
+2026-08-11 12:39:58,844 - src.models.walk_forward - INFO - CV metric direction_accuracy   — mean=0.412698  std=0.015873
+2026-08-11 12:39:58,845 - src.models.walk_forward - INFO - CV metric ic                   — mean=-0.089971  std=0.024671
+2026-08-11 12:39:58,845 - src.models.forecaster - INFO - Ensemble for TEST.NS complete — weights: {'lightgbm': '0.376', 'xgboost': '0.287', 'ridge': '0.337'}
+2026-08-11 12:39:58,845 - src.models.forecaster - INFO - Completed training for 1 / 1 tickers
+2026-08-11 12:39:58,846 - src.models.forecaster - INFO - Saved lightgbm model → /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-11/test_save_load_roundtrip0/models_test/TEST_NS/lightgbm.joblib
+2026-08-11 12:39:58,848 - src.models.forecaster - INFO - Saved xgboost model → /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-11/test_save_load_roundtrip0/models_test/TEST_NS/xgboost.joblib
+2026-08-11 12:39:58,848 - src.models.forecaster - INFO - Saved ridge model → /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-11/test_save_load_roundtrip0/models_test/TEST_NS/ridge.joblib
+2026-08-11 12:39:58,849 - src.models.forecaster - INFO - All models saved to /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-11/test_save_load_roundtrip0/models_test
+2026-08-11 12:39:58,849 - src.models.walk_forward - INFO - WalkForwardValidator initialised — initial_train=504, val=63, step=21, expanding=True, purge=5
+2026-08-11 12:39:58,849 - src.models.feature_selection - INFO - FeatureSelector initialised — target_n=30, step=5, collinearity_threshold=0.90
+2026-08-11 12:39:58,849 - src.models.forecaster - INFO - ReturnForecaster initialised — primary=lightgbm, ensemble=True, models=['lightgbm', 'xgboost', 'ridge']
+2026-08-11 12:39:58,849 - src.models.forecaster - INFO - Loaded lightgbm model ← /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-11/test_save_load_roundtrip0/models_test/TEST_NS/lightgbm.joblib
+2026-08-11 12:39:58,850 - src.models.forecaster - INFO - Loaded ridge model ← /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-11/test_save_load_roundtrip0/models_test/TEST_NS/ridge.joblib
+2026-08-11 12:39:58,851 - src.models.forecaster - INFO - Loaded xgboost model ← /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-11/test_save_load_roundtrip0/models_test/TEST_NS/xgboost.joblib
+2026-08-11 12:39:58,852 - src.models.forecaster - INFO - Loaded models for 1 tickers from /private/var/folders/qt/txybg2wj4tx6mls6vnrgnkk40000gn/T/pytest-of-aritra/pytest-11/test_save_load_roundtrip0/models_test
+2026-08-11 12:39:58,857 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:58,864 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:58,869 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:58,869 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:58,875 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:58,875 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:58,875 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=63 days
+2026-08-11 12:39:59,057 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,057 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:59,058 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=63 days
+2026-08-11 12:39:59,067 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,067 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:59,067 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=63 days
+2026-08-11 12:39:59,077 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,283 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,288 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,288 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,293 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,294 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,298 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,298 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,304 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,304 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,309 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,309 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,310 - src.backtest.metrics - INFO - All metrics computed — Sharpe=-3.4154, MDD=0.2226, Total Return=-0.1639
+2026-08-11 12:39:59,315 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,315 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:59,315 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,315 - src.backtest.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 12:39:59,320 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,321 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:59,321 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,321 - src.backtest.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 12:39:59,321 - src.backtest.backtester - INFO - Running backtest: 2025-10-01 → 2025-12-31, 6 tickers, initial_capital=₹1000000
+2026-08-11 12:39:59,323 - src.backtest.backtester - INFO - Aligned data: 62 dates, 6 tickers
+2026-08-11 12:39:59,323 - src.backtest.backtester - INFO - Backtest covers 62 trading days.
+2026-08-11 12:39:59,325 - src.construction.optimizer - INFO - Generated 3 rebalance dates (monthly) from 2025-10-01 to 2025-12-31
+2026-08-11 12:39:59,326 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=1 days
+2026-08-11 12:39:59,329 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=23 days
+2026-08-11 12:39:59,333 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=43 days
+2026-08-11 12:39:59,340 - src.backtest.metrics - INFO - All metrics computed — Sharpe=-2.5180, MDD=0.0054, Total Return=0.0038
+2026-08-11 12:39:59,340 - src.backtest.backtester - INFO - Backtest complete — Final Value=₹1002916, Total Return=0.0038, Sharpe=-2.5180, MDD=0.0054
+2026-08-11 12:39:59,348 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,349 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:59,349 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,349 - src.backtest.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 12:39:59,349 - src.backtest.backtester - INFO - Running forward test: 2025-10-01 → 2025-12-31
+2026-08-11 12:39:59,349 - src.backtest.backtester - INFO - Running backtest: 2025-10-01 → 2025-12-31, 6 tickers, initial_capital=₹1000000
+2026-08-11 12:39:59,351 - src.backtest.backtester - INFO - Aligned data: 62 dates, 6 tickers
+2026-08-11 12:39:59,351 - src.backtest.backtester - INFO - Backtest covers 62 trading days.
+2026-08-11 12:39:59,351 - src.construction.optimizer - INFO - Generated 3 rebalance dates (monthly) from 2025-10-01 to 2025-12-31
+2026-08-11 12:39:59,352 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=1 days
+2026-08-11 12:39:59,355 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=23 days
+2026-08-11 12:39:59,360 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=43 days
+2026-08-11 12:39:59,366 - src.backtest.metrics - INFO - All metrics computed — Sharpe=-2.5180, MDD=0.0054, Total Return=0.0038
+2026-08-11 12:39:59,366 - src.backtest.backtester - INFO - Backtest complete — Final Value=₹1002916, Total Return=0.0038, Sharpe=-2.5180, MDD=0.0054
+2026-08-11 12:39:59,371 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,372 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:59,372 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,372 - src.backtest.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 12:39:59,372 - src.backtest.backtester - INFO - Running backtest: 2025-10-01 → 2025-12-31, 6 tickers, initial_capital=₹1000000
+2026-08-11 12:39:59,374 - src.backtest.backtester - INFO - Aligned data: 62 dates, 6 tickers
+2026-08-11 12:39:59,374 - src.backtest.backtester - INFO - Backtest covers 62 trading days.
+2026-08-11 12:39:59,375 - src.construction.optimizer - INFO - Generated 3 rebalance dates (monthly) from 2025-10-01 to 2025-12-31
+2026-08-11 12:39:59,375 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=1 days
+2026-08-11 12:39:59,378 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=23 days
+2026-08-11 12:39:59,382 - src.construction.optimizer - INFO - Optimising portfolio — method=alpha_hrp, n_assets=6, lookback=43 days
+2026-08-11 12:39:59,389 - src.backtest.metrics - INFO - All metrics computed — Sharpe=-2.5180, MDD=0.0054, Total Return=0.0038
+2026-08-11 12:39:59,389 - src.backtest.backtester - INFO - Backtest complete — Final Value=₹1002916, Total Return=0.0038, Sharpe=-2.5180, MDD=0.0054
+2026-08-11 12:39:59,389 - src.backtest.metrics - INFO - Performance report saved to reports/performance_report.txt
+2026-08-11 12:39:59,542 - src.backtest.metrics - INFO - Equity curve saved to reports/equity_curve.png
+2026-08-11 12:39:59,619 - src.backtest.backtester - INFO - Weight allocation chart saved to reports/weight_allocation.png
+2026-08-11 12:39:59,619 - src.backtest.backtester - INFO - Report generated — 2 figures, text report length=1192
+2026-08-11 12:39:59,624 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:39:59,624 - src.construction.optimizer - INFO - PortfolioOptimizer initialised — method=alpha_hrp, max_weight=0.40, min_weight=0.05, lookback=63
+2026-08-11 12:39:59,624 - src.backtest.metrics - INFO - PortfolioMetrics initialised — rf=0.0650, trading_days=252
+2026-08-11 12:39:59,624 - src.backtest.backtester - INFO - PortfolioBacktester initialised — transaction_cost=0.0010, test_period=2025-10-01 to 2025-12-31
+2026-08-11 12:39:59,629 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:40:10,602 - src.utils.helpers - INFO - Configuration loaded from config/config.yaml
+2026-08-11 12:40:11,124 - src.features.fundamental_features - INFO - FundamentalFeatureEngineer initialised – lag 45 days

@@ -6,7 +6,7 @@ to `paths.output_dir` (see config.yaml).
 import numpy as np
 import matplotlib.pyplot as plt
 
-from portfolio_replication import config
+from src.construction import config
 
 plt.rcParams.update({"font.size": 10, "figure.dpi": 150})
 

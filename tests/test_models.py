@@ -77,40 +77,35 @@ class TestWalkForwardValidator:
         from src.models.walk_forward import WalkForwardValidator
 
         validator = WalkForwardValidator(config)
-        try:
-            splits = validator.generate_splits(sample_features.index)
-            assert isinstance(splits, list)
-            assert len(splits) >= 1
-        except (AttributeError, TypeError):
-            pytest.skip("generate_splits signature may differ")
+        splits = list(validator.generate_splits(len(sample_features)))
+        assert len(splits) >= 1
+        train_idx, val_idx = splits[0]
+        assert isinstance(train_idx, np.ndarray)
+        assert isinstance(val_idx, np.ndarray)
 
     def test_splits_are_chronological(self, config, sample_features):
-        """Validation start should always be after training end."""
+        """Validation indices should always start after training indices end."""
         from src.models.walk_forward import WalkForwardValidator
 
         validator = WalkForwardValidator(config)
-        try:
-            splits = validator.generate_splits(sample_features.index)
-            for split in splits:
-                assert split.val_start > split.train_end, (
-                    "Validation must start after training ends"
-                )
-        except (AttributeError, TypeError):
-            pytest.skip("WalkForwardSplit attributes may differ")
+        splits = list(validator.generate_splits(len(sample_features)))
+        assert len(splits) >= 1
+        for train_idx, val_idx in splits:
+            assert val_idx.min() > train_idx.max(), (
+                "Validation must start after training ends"
+            )
 
     def test_no_overlap(self, config, sample_features):
         """Training and validation windows should not overlap."""
         from src.models.walk_forward import WalkForwardValidator
 
         validator = WalkForwardValidator(config)
-        try:
-            splits = validator.generate_splits(sample_features.index)
-            for split in splits:
-                assert split.train_end < split.val_start, (
-                    "Train/val windows must not overlap"
-                )
-        except (AttributeError, TypeError):
-            pytest.skip("Split structure may differ")
+        splits = list(validator.generate_splits(len(sample_features)))
+        assert len(splits) >= 1
+        for train_idx, val_idx in splits:
+            assert set(train_idx.tolist()).isdisjoint(val_idx.tolist()), (
+                "Train/val windows must not overlap"
+            )
 
 
 # ---------------------------------------------------------------------------

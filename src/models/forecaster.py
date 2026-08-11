@@ -10,6 +10,9 @@ Supported model types:
     - **LightGBM** (primary) — fast histogram-based GBDT
     - **XGBoost** — secondary ensemble member
     - **Ridge** — highly-regularised linear baseline
+    - **SARIMAX** — classical univariate baseline (``src.models.sarimax_model``),
+      walk-forward CV'd alongside the ensemble via ``model.benchmark_models``
+      in config for comparison, not blended into the ensemble prediction
 
 Example:
     >>> from src.models.forecaster import ReturnForecaster
@@ -107,6 +110,11 @@ class ReturnForecaster:
         self.ensemble_model_names: List[str] = model_cfg.get(
             "ensemble_models", ["lightgbm", "xgboost", "ridge"]
         )
+        # Baseline models that are walk-forward CV'd alongside the ensemble
+        # for comparison, but not fitted/blended into the final prediction.
+        self.benchmark_model_names: List[str] = model_cfg.get(
+            "benchmark_models", []
+        )
 
         # Paths
         paths_cfg = config.get("paths", {})
@@ -199,12 +207,28 @@ class ReturnForecaster:
             random_state=42,
         )
 
+    def _create_sarimax(self) -> Any:
+        """Create a SARIMAX baseline from config hyperparameters.
+
+        Returns:
+            Unfitted :class:`~src.models.sarimax_model.SARIMAXRegressor`.
+        """
+        from src.models.sarimax_model import SARIMAXRegressor
+
+        sarimax_cfg = self.config.get("model", {}).get("sarimax", {})
+        return SARIMAXRegressor(
+            order=tuple(sarimax_cfg.get("order", [1, 0, 0])),
+            seasonal_order=tuple(sarimax_cfg.get("seasonal_order", [0, 0, 0, 0])),
+            trend=sarimax_cfg.get("trend", "c"),
+            purge_gap=sarimax_cfg.get("purge_gap", 5),
+        )
+
     def create_model(self, model_type: str = "lightgbm") -> Any:
         """Factory method returning a fresh unfitted model.
 
         Args:
-            model_type: One of ``'lightgbm'``, ``'xgboost'``, or
-                ``'ridge'``.
+            model_type: One of ``'lightgbm'``, ``'xgboost'``, ``'ridge'``,
+                or ``'sarimax'``.
 
         Returns:
             Unfitted sklearn-compatible estimator.
@@ -219,9 +243,11 @@ class ReturnForecaster:
             return self._create_xgboost()
         if model_type == "ridge":
             return self._create_ridge()
+        if model_type == "sarimax":
+            return self._create_sarimax()
         raise ValueError(
             f"Unknown model_type '{model_type}'. "
-            "Supported: lightgbm, xgboost, ridge"
+            "Supported: lightgbm, xgboost, ridge, sarimax"
         )
 
     # ------------------------------------------------------------------
@@ -397,6 +423,29 @@ class ReturnForecaster:
             except Exception as exc:
                 logger.error(
                     "Failed to train %s for %s: %s",
+                    mtype,
+                    ticker,
+                    exc,
+                    exc_info=True,
+                )
+
+        # --- 2b. Benchmark models (e.g. SARIMAX) — CV'd for comparison
+        # only; not fitted or blended into the ensemble prediction. ---
+        for mtype in self.benchmark_model_names:
+            if mtype in all_cv_scores:
+                continue
+            logger.info("  Evaluating benchmark model: %s", mtype)
+            try:
+                cv_model = self.create_model(mtype)
+                all_cv_scores[mtype] = self.walk_forward.cross_validate(
+                    model=cv_model,
+                    X=X_scaled,
+                    y=y_arr,
+                    metrics=["mse", "mae", "r2", "direction_accuracy", "ic"],
+                )
+            except Exception as exc:
+                logger.error(
+                    "Failed to evaluate benchmark model %s for %s: %s",
                     mtype,
                     ticker,
                     exc,

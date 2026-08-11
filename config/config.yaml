@@ -1,6 +1,6 @@
 # ============================================================
 # config.yaml — Master Configuration
-# Multi-Dimensional Return Forecasting and Portfolio Management
+# Quant Research Platform: forecast -> construct -> backtest
 # ============================================================
 
 # Stock universe
@@ -65,6 +65,14 @@ model:
   type: "lightgbm"  # primary model
   ensemble: true     # whether to use ensemble
   ensemble_models: ["lightgbm", "xgboost", "ridge"]
+  # Walk-forward CV'd alongside the ensemble for comparison (not blended
+  # into the ensemble prediction) -- closes the ARIMA/SARIMA baseline gap.
+  benchmark_models: ["sarimax"]
+  sarimax:
+    order: [1, 0, 0]
+    seasonal_order: [0, 0, 0, 0]
+    trend: "c"
+    purge_gap: 5   # must match walk_forward purge behaviour below
   walk_forward:
     initial_train_days: 504   # ~2 years of trading days
     validation_days: 63       # ~3 months
@@ -100,7 +108,11 @@ model:
 
 # Portfolio configuration
 portfolio:
-  method: "inverse_volatility"  # Options: equal_weight, inverse_volatility, mean_variance, max_sharpe
+  # Options: equal_weight, inverse_volatility, mean_variance, max_sharpe,
+  # min_variance, risk_parity, signal_weighted, alpha_markowitz, alpha_hrp
+  # (alpha_markowitz / alpha_hrp route through src/construction/weighting.py,
+  # the forecast -> construct integration -- see docs/ARCHITECTURE.md).
+  method: "alpha_hrp"
   rebalance_frequency: "monthly"  # Options: daily, weekly, monthly
   risk_free_rate: 0.065  # India 10-year bond yield approx
   max_weight: 0.40  # Maximum weight per stock
@@ -137,3 +149,64 @@ logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   file: "logs/pipeline.log"
+
+# ------------------------------------------------------------------
+# Portfolio construction (from the portfolio-replication project).
+# Set portfolio.method above to "alpha_markowitz" or "alpha_hrp" to
+# route the backtester's rebalancing through this layer instead of
+# the optimizer.py methods -- see src/construction/alpha_portfolio.py.
+# ------------------------------------------------------------------
+construction:
+  # Used by src.construction.alpha_portfolio when the caller doesn't pin
+  # one explicitly (mirrors portfolio.method values "alpha_markowitz" /
+  # "alpha_hrp").
+  weighting_method: "hrp"
+  # Risk-aversion coefficient in the alpha-maximizing Markowitz objective:
+  # maximize alpha' w - alpha_risk_aversion * w' Sigma w
+  alpha_risk_aversion: 5.0
+  sector_map_file: "config/sector_map.csv"
+  weighting:
+    ridge_eps: 1.0e-6
+    weight_reg: 1.0e-3
+    max_stock_weight: 0.40
+    sector_cap_buffer: 0.10
+    min_sector_weight_for_quota: 0.04
+    sector_quota_relax: 0.35
+  market:
+    trading_days_per_year: 252
+  simulation:
+    random_seed: 42
+  legacy_replication:
+    # Optional large-universe "replicate an index" mode inherited from the
+    # original portfolio-replication project (LASSO / autoencoder sparse
+    # selection vs. a benchmark index). Needs user-supplied price CSVs
+    # under paths.raw_data_dir (not included in this repo -- see
+    # docs/original-coursework/portfolio-replication/README.md for the
+    # expected layout). Not used by the default forecast -> construct ->
+    # backtest pipeline (that uses `weighting_method` above directly).
+    paths:
+      raw_data_dir: "data/replication_raw"
+      output_dir: "reports/legacy_replication"
+    dates:
+      train_start: "2020-01-01"
+      train_end: "2024-06-30"
+      valid_start: "2024-07-01"
+      valid_end: "2025-06-30"
+      holdout_start: "2025-07-01"
+      holdout_end: "2025-12-31"
+      rolling_folds:
+        - ["2020-01-01", "2023-12-31", "2024-01-01", "2024-06-30"]
+        - ["2020-01-01", "2024-06-30", "2024-07-01", "2024-12-31"]
+        - ["2020-01-01", "2024-12-31", "2025-01-01", "2025-06-30"]
+    selection:
+      k_default: 50
+      k_max_final: 50
+      k_min_opt: 10
+      sweep_min_k: 10
+      sweep_max_k: 100
+      sweep_step: 5
+      selection_tol: 0.30
+    autoencoder:
+      max_latent: 12
+      dropout: 0.20
+      epochs: 10

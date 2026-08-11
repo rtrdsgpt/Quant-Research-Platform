@@ -9,7 +9,7 @@ from scipy.cluster.hierarchy import linkage
 from scipy.optimize import minimize
 from scipy.spatial.distance import squareform
 
-from portfolio_replication import config, sectors
+from src.construction import config, sectors
 
 try:
     import cvxpy as cp
@@ -127,6 +127,67 @@ def markowitz_weights(X_train, y_train, selected, benchmark_sector_weights):
 
     def objective_fn(w_):
         return float(w_ @ te_cov @ w_ + config.WEIGHT_REG * np.sum(w_**2))
+
+    constraints = {"type": "eq", "fun": lambda w_: np.sum(w_) - 1.0}
+    bounds = [(0.0, config.MAX_STOCK_WEIGHT)] * len(selected)
+    res = minimize(objective_fn, x0=x0, bounds=bounds, constraints=constraints, method="SLSQP")
+    if res.success:
+        return enforce_weight_constraints(pd.Series(res.x, index=selected), benchmark_sector_weights)
+    return enforce_weight_constraints(pd.Series(x0, index=selected), benchmark_sector_weights)
+
+
+def alpha_markowitz_weights(X_train, alpha, selected, benchmark_sector_weights, risk_aversion=None):
+    """Mean-variance construction driven by a forecasted alpha vector.
+
+    This is the alpha-construction counterpart to :func:`markowitz_weights`:
+    instead of minimizing tracking error against a benchmark return series,
+    it maximizes ``alpha' w - risk_aversion * w' Sigma w`` -- the standard
+    mean-variance objective, using the ML ensemble's per-ticker predicted
+    return as the expected-return vector.
+
+    Args:
+        X_train: Historical returns DataFrame (date x ticker), used only
+            to estimate the covariance matrix `Sigma`.
+        alpha: Mapping (dict or Series) of ticker -> forecasted return.
+        selected: List of tickers to include (the candidate universe).
+        benchmark_sector_weights: Series of sector -> weight, used only
+            for sector-cap constraints (see `enforce_weight_constraints`).
+        risk_aversion: Risk-aversion coefficient. Defaults to
+            `config.ALPHA_RISK_AVERSION`.
+
+    Returns:
+        Dict[ticker, float] weights, non-negative, summing to 1.
+    """
+    X_sel = X_train[selected].values
+    cov = np.cov(X_sel, rowvar=False) + config.RIDGE_EPS * np.eye(len(selected))
+    alpha_vec = np.array([float(alpha[t]) for t in selected])
+    risk_aversion = config.ALPHA_RISK_AVERSION if risk_aversion is None else risk_aversion
+
+    sector_names = [sectors.get_sector_full_name(t) for t in selected]
+    sector_caps = sector_cap_lookup(benchmark_sector_weights)
+
+    if HAS_CVXPY:
+        w = cp.Variable(len(selected))
+        objective = cp.Maximize(
+            alpha_vec @ w - risk_aversion * cp.quad_form(w, cov) - config.WEIGHT_REG * cp.sum_squares(w)
+        )
+        constraints = [cp.sum(w) == 1, w >= 0, w <= config.MAX_STOCK_WEIGHT]
+        for sector in sorted(set(sector_names)):
+            idx = [i for i, s in enumerate(sector_names) if s == sector]
+            cap = sector_caps.get(sector, 1.0)
+            constraints.append(cp.sum(w[idx]) <= cap)
+        problem = cp.Problem(objective, constraints)
+        try:
+            problem.solve(solver=cp.OSQP, verbose=False)
+        except Exception:
+            problem.solve(solver=cp.SCS, verbose=False)
+        if w.value is not None:
+            return enforce_weight_constraints(pd.Series(w.value, index=selected), benchmark_sector_weights)
+
+    x0 = np.full(len(selected), 1.0 / len(selected))
+
+    def objective_fn(w_):
+        return float(-(alpha_vec @ w_) + risk_aversion * (w_ @ cov @ w_) + config.WEIGHT_REG * np.sum(w_**2))
 
     constraints = {"type": "eq", "fun": lambda w_: np.sum(w_) - 1.0}
     bounds = [(0.0, config.MAX_STOCK_WEIGHT)] * len(selected)

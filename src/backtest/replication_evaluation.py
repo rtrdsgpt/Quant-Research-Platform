@@ -5,7 +5,7 @@ and sector-drift computation.
 import numpy as np
 import pandas as pd
 
-from portfolio_replication import config, sectors, selection, weighting
+from src.construction import config, sectors, selection, weighting
 
 
 def annual_tracking_error(port_ret, bench_ret):

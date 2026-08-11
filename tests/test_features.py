@@ -120,7 +120,7 @@ class TestTechnicalFeatureEngineer:
         from src.features.technical_features import TechnicalFeatureEngineer
 
         engineer = TechnicalFeatureEngineer(config)
-        result = engineer.build(sample_ohlcv)
+        result = engineer.generate_all_features(sample_ohlcv)
         assert isinstance(result, pd.DataFrame)
         assert len(result) > 0
         assert result.shape[1] > 5  # Should have multiple feature columns
@@ -130,7 +130,7 @@ class TestTechnicalFeatureEngineer:
         from src.features.technical_features import TechnicalFeatureEngineer
 
         engineer = TechnicalFeatureEngineer(config)
-        result = engineer.build(sample_ohlcv).dropna()
+        result = engineer.generate_all_features(sample_ohlcv).dropna()
         assert len(result) > 0
         assert result.isna().sum().sum() == 0
 
@@ -139,7 +139,7 @@ class TestTechnicalFeatureEngineer:
         from src.features.technical_features import TechnicalFeatureEngineer
 
         engineer = TechnicalFeatureEngineer(config)
-        result = engineer.build(sample_ohlcv)
+        result = engineer.generate_all_features(sample_ohlcv)
         log_ret_cols = [c for c in result.columns if "log_ret" in c.lower()
                         or "return" in c.lower()]
         assert len(log_ret_cols) > 0, "Expected at least one log return column"
@@ -164,7 +164,7 @@ class TestFundamentalFeatureEngineer:
         from src.features.fundamental_features import FundamentalFeatureEngineer
 
         engineer = FundamentalFeatureEngineer(config)
-        result = engineer.build(sample_fundamental)
+        result = engineer.generate_all_features(sample_fundamental)
         assert isinstance(result, pd.DataFrame)
         assert len(result) > 0
 
@@ -188,7 +188,7 @@ class TestMacroFeatureEngineer:
         from src.features.macro_features import MacroFeatureEngineer
 
         engineer = MacroFeatureEngineer(config)
-        result = engineer.build(sample_macro)
+        result = engineer.generate_all_features(sample_macro)
         assert isinstance(result, pd.DataFrame)
         assert len(result) > 0
 
@@ -212,7 +212,7 @@ class TestSentimentFeatureEngineer:
         from src.features.sentiment_features import SentimentFeatureEngineer
 
         engineer = SentimentFeatureEngineer(config)
-        result = engineer.build(sample_sentiment)
+        result = engineer.generate_all_features(sample_sentiment)
         assert isinstance(result, pd.DataFrame)
         assert len(result) > 0
 
@@ -239,16 +239,12 @@ class TestFeaturePipeline:
         from src.features.feature_pipeline import FeaturePipeline
 
         pipeline = FeaturePipeline(config)
-        try:
-            result = pipeline.build_single_feature_matrix(
-                ticker="RELIANCE.NS",
-                ohlcv=sample_ohlcv,
-                fundamental=sample_fundamental,
-                macro=sample_macro,
-                sentiment=sample_sentiment,
-            )
-            assert isinstance(result, pd.DataFrame)
-            assert len(result) > 0
-        except (AttributeError, TypeError):
-            # Method signature may differ; skip gracefully
-            pytest.skip("build_single_feature_matrix not available with expected signature")
+        result = pipeline.build_feature_matrix(
+            ohlcv_data={"RELIANCE.NS": sample_ohlcv},
+            fundamental_data={"RELIANCE.NS": sample_fundamental},
+            macro_data=sample_macro,
+            sentiment_data={"RELIANCE.NS": sample_sentiment},
+            ticker="RELIANCE.NS",
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) > 0

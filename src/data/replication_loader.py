@@ -16,7 +16,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from portfolio_replication import config
+from src.construction import config
 
 
 def _numeric_close_frame(path, series_name):

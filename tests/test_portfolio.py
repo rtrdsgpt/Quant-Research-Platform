@@ -109,14 +109,14 @@ class TestPortfolioOptimizer:
 
     def test_init(self, config):
         """PortfolioOptimizer should initialise from config."""
-        from src.portfolio.optimizer import PortfolioOptimizer
+        from src.construction.optimizer import PortfolioOptimizer
 
         optimizer = PortfolioOptimizer(config)
         assert optimizer is not None
 
     def test_equal_weights(self, config):
         """Equal weights should sum to 1 and all be equal."""
-        from src.portfolio.optimizer import PortfolioOptimizer
+        from src.construction.optimizer import PortfolioOptimizer
 
         optimizer = PortfolioOptimizer(config)
         n_assets = 6
@@ -130,7 +130,7 @@ class TestPortfolioOptimizer:
 
     def test_weights_sum_to_one(self, config, sample_returns):
         """Optimized weights should always sum to approximately 1."""
-        from src.portfolio.optimizer import PortfolioOptimizer
+        from src.construction.optimizer import PortfolioOptimizer
 
         optimizer = PortfolioOptimizer(config)
         predicted = np.random.randn(6) * 0.01
@@ -145,7 +145,7 @@ class TestPortfolioOptimizer:
 
     def test_weight_constraints(self, config, sample_returns):
         """No weight should exceed max_weight or fall below min_weight."""
-        from src.portfolio.optimizer import PortfolioOptimizer
+        from src.construction.optimizer import PortfolioOptimizer
 
         optimizer = PortfolioOptimizer(config)
         port_cfg = config.get("portfolio", {})
@@ -167,7 +167,7 @@ class TestPortfolioOptimizer:
 
     def test_no_negative_weights(self, config, sample_returns):
         """Long-only portfolio should have no negative weights."""
-        from src.portfolio.optimizer import PortfolioOptimizer
+        from src.construction.optimizer import PortfolioOptimizer
 
         optimizer = PortfolioOptimizer(config)
         predicted = np.random.randn(6) * 0.01
@@ -188,14 +188,14 @@ class TestPortfolioMetrics:
 
     def test_init(self, config):
         """PortfolioMetrics should initialise from config."""
-        from src.portfolio.metrics import PortfolioMetrics
+        from src.backtest.metrics import PortfolioMetrics
 
         metrics = PortfolioMetrics(config)
         assert metrics is not None
 
     def test_sharpe_ratio_positive_returns(self, config):
         """Sharpe ratio should be positive for consistently positive returns."""
-        from src.portfolio.metrics import PortfolioMetrics
+        from src.backtest.metrics import PortfolioMetrics
 
         metrics_calc = PortfolioMetrics(config)
         # Consistently positive returns
@@ -209,7 +209,7 @@ class TestPortfolioMetrics:
 
     def test_max_drawdown_range(self, config, sample_portfolio_returns):
         """Max drawdown should be between -1 and 0."""
-        from src.portfolio.metrics import PortfolioMetrics
+        from src.backtest.metrics import PortfolioMetrics
 
         metrics_calc = PortfolioMetrics(config)
         try:
@@ -220,7 +220,7 @@ class TestPortfolioMetrics:
 
     def test_hit_ratio_range(self, config):
         """Hit ratio should be between 0 and 1."""
-        from src.portfolio.metrics import PortfolioMetrics
+        from src.backtest.metrics import PortfolioMetrics
 
         metrics_calc = PortfolioMetrics(config)
         predicted = pd.Series([0.01, -0.02, 0.005, -0.01, 0.003])
@@ -234,7 +234,7 @@ class TestPortfolioMetrics:
 
     def test_equity_curve_monotonic_for_positive_returns(self, config):
         """Equity curve should be monotonically increasing for all-positive returns."""
-        from src.portfolio.metrics import PortfolioMetrics
+        from src.backtest.metrics import PortfolioMetrics
 
         metrics_calc = PortfolioMetrics(config)
         returns = pd.Series([0.01, 0.02, 0.01, 0.005, 0.01])
@@ -249,7 +249,7 @@ class TestPortfolioMetrics:
 
     def test_compute_all_metrics(self, config, sample_portfolio_returns):
         """compute_all_metrics should return a dict with standard keys."""
-        from src.portfolio.metrics import PortfolioMetrics
+        from src.backtest.metrics import PortfolioMetrics
 
         metrics_calc = PortfolioMetrics(config)
         portfolio_values = (1 + sample_portfolio_returns).cumprod() * 1_000_000
@@ -279,7 +279,7 @@ class TestPortfolioBacktester:
 
     def test_init(self, config):
         """PortfolioBacktester should initialise from config."""
-        from src.portfolio.backtester import PortfolioBacktester
+        from src.backtest.backtester import PortfolioBacktester
 
         backtester = PortfolioBacktester(config)
         assert backtester is not None
@@ -288,7 +288,7 @@ class TestPortfolioBacktester:
 
     def test_run_backtest(self, config, sample_predictions, sample_prices):
         """run_backtest should return a results dict with expected keys."""
-        from src.portfolio.backtester import PortfolioBacktester
+        from src.backtest.backtester import PortfolioBacktester
 
         backtester = PortfolioBacktester(config)
 
@@ -309,7 +309,7 @@ class TestPortfolioBacktester:
 
     def test_forward_test(self, config, sample_predictions, sample_prices):
         """forward_test should use dates from config."""
-        from src.portfolio.backtester import PortfolioBacktester
+        from src.backtest.backtester import PortfolioBacktester
 
         backtester = PortfolioBacktester(config)
 
@@ -324,7 +324,7 @@ class TestPortfolioBacktester:
 
     def test_generate_report(self, config, sample_predictions, sample_prices):
         """generate_report should return text and figures."""
-        from src.portfolio.backtester import PortfolioBacktester
+        from src.backtest.backtester import PortfolioBacktester
 
         backtester = PortfolioBacktester(config)
 
@@ -344,7 +344,7 @@ class TestPortfolioBacktester:
 
     def test_transaction_costs_applied(self, config):
         """Transaction cost computation should be non-negative."""
-        from src.portfolio.backtester import PortfolioBacktester
+        from src.backtest.backtester import PortfolioBacktester
 
         backtester = PortfolioBacktester(config)
         old_w = np.array([0.2, 0.2, 0.2, 0.2, 0.1, 0.1])
@@ -356,7 +356,7 @@ class TestPortfolioBacktester:
 
     def test_drift_weights_sum_to_one(self, config):
         """After drifting, weights should still sum to 1."""
-        from src.portfolio.backtester import PortfolioBacktester
+        from src.backtest.backtester import PortfolioBacktester
 
         weights = np.array([0.2, 0.2, 0.2, 0.2, 0.1, 0.1])
         stock_returns = np.array([0.01, -0.02, 0.005, 0.015, -0.01, 0.008])

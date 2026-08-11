@@ -8,7 +8,7 @@ rather than live index weights.
 
 import pandas as pd
 
-from portfolio_replication import config
+from src.construction import config
 
 UNKNOWN_SECTOR = "Unknown"
 UNKNOWN_SECTOR_FULL = "Unknown / Unmapped"

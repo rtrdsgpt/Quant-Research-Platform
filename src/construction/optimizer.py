@@ -9,9 +9,13 @@ portfolio construction strategies:
 3. **Mean-Variance (Markowitz)** — maximise Sharpe ratio or minimise variance.
 4. **Risk Parity** — equal risk contribution from each asset.
 5. **Signal-Weighted** — weight proportional to predicted return signal.
+6. **Alpha-Markowitz** (``alpha_markowitz``) / **Alpha-HRP** (``alpha_hrp``)
+   — routes through ``src.construction.weighting`` (from the
+   portfolio-replication project): mean-variance maximizing forecasted
+   alpha, or Hierarchical Risk Parity over the positive-alpha subset.
 
 Example:
-    >>> from src.portfolio.optimizer import PortfolioOptimizer
+    >>> from src.construction.optimizer import PortfolioOptimizer
     >>> from src.utils.helpers import load_config
     >>> config = load_config()
     >>> optimizer = PortfolioOptimizer(config)
@@ -438,6 +442,27 @@ class PortfolioOptimizer:
                 )
                 return self.equal_weight(n_assets)
             return self.signal_weighted(predicted_returns)
+
+        if method in ("alpha_markowitz", "alpha_hrp"):
+            if predicted_returns is None:
+                logger.warning(
+                    "%s requires predicted_returns; falling back to equal weight.",
+                    method,
+                )
+                return self.equal_weight(n_assets)
+            from src.construction.alpha_portfolio import build_alpha_weights
+
+            alpha = dict(zip(returns_history.columns, np.asarray(predicted_returns).ravel()))
+            sub_method = "markowitz" if method == "alpha_markowitz" else "hrp"
+            weights_dict = build_alpha_weights(
+                recent_returns,
+                alpha,
+                universe=list(returns_history.columns),
+                method=sub_method,
+            )
+            weights = np.array([weights_dict.get(t, 0.0) for t in returns_history.columns])
+            logger.debug("%s weights: %s", method, weights)
+            return weights
 
         logger.warning(
             "Unknown method '%s'; falling back to equal weight.", method

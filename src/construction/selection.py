@@ -9,7 +9,7 @@ from sklearn.linear_model import Lasso, LassoCV
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import StandardScaler
 
-from portfolio_replication import config, sectors
+from src.construction import config, sectors
 
 try:
     import tensorflow as tf

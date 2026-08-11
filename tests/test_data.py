@@ -79,7 +79,9 @@ class TestMarketDataFetcher:
         mock_download.return_value = sample_ohlcv
         fetcher = MarketDataFetcher(config)
 
-        result = fetcher.fetch_single_stock("RELIANCE.NS")
+        result = fetcher.fetch_single_stock(
+            "RELIANCE.NS", fetcher.start_date, fetcher.end_date
+        )
         assert isinstance(result, pd.DataFrame)
         assert len(result) > 0
 
@@ -96,14 +98,15 @@ class TestMarketDataFetcher:
         assert len(result) > 0
 
     def test_load_cached_file_not_found(self, config):
-        """load_cached should handle missing files gracefully."""
+        """load_cached should skip missing files gracefully (not raise)."""
         from src.data.market_data import MarketDataFetcher
 
         fetcher = MarketDataFetcher(config)
-        # Point to a non-existent directory
+        # Point both the primary and fallback paths at a non-existent directory
+        fetcher.raw_dir = "data/raw/nonexistent_market_test/"
         fetcher.raw_data_path = "data/raw/nonexistent_market_test/"
-        with pytest.raises((FileNotFoundError, Exception)):
-            fetcher.load_cached()
+        result = fetcher.load_cached()
+        assert result == {}
 
 
 # ---------------------------------------------------------------------------

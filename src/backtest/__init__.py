@@ -1,19 +1,21 @@
 """
-Portfolio management modules for the Multi-Dimensional Return Forecasting system.
-
-This package contains modules for portfolio optimization, performance metrics,
-and backtesting:
+Backtesting and evaluation modules for the forecast -> construct -> backtest
+platform.
 
 Modules:
-    optimizer: Portfolio weight optimization (equal weight, inverse volatility,
-        mean-variance, risk parity, signal-weighted).
     metrics: Performance metrics (Sharpe ratio, max drawdown, hit ratio,
         equity curve, Sortino, Calmar, information ratio).
     backtester: Portfolio backtesting engine with transaction costs and
         strategy comparison.
+    replication_evaluation / replication_report / replication_visualization:
+        rolling-CV tracking-error evaluation inherited from the legacy
+        index-replication mode (see src/construction/selection.py).
+    benchmarks: runs the forecast-driven portfolio against equal-weight and
+        mean-variance baselines and reports a comparison table.
 
 Example:
-    >>> from src.portfolio import PortfolioOptimizer, PortfolioMetrics, PortfolioBacktester
+    >>> from src.backtest import PortfolioMetrics, PortfolioBacktester
+    >>> from src.construction.optimizer import PortfolioOptimizer
     >>> from src.utils.helpers import load_config
     >>> config = load_config()
     >>> optimizer = PortfolioOptimizer(config)
@@ -24,9 +26,9 @@ Example:
     >>> results = backtester.run_backtest(predictions, prices, start, end)
 """
 
-from src.portfolio.optimizer import PortfolioOptimizer
-from src.portfolio.metrics import PortfolioMetrics
-from src.portfolio.backtester import PortfolioBacktester
+from src.construction.optimizer import PortfolioOptimizer
+from src.backtest.metrics import PortfolioMetrics
+from src.backtest.backtester import PortfolioBacktester
 
 __all__ = [
     "PortfolioOptimizer",

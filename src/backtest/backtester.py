@@ -7,7 +7,7 @@ constraints.  It orchestrates :class:`PortfolioOptimizer` and
 :class:`PortfolioMetrics` to produce full backtest results.
 
 Example:
-    >>> from src.portfolio.backtester import PortfolioBacktester
+    >>> from src.backtest.backtester import PortfolioBacktester
     >>> from src.utils.helpers import load_config
     >>> config = load_config()
     >>> bt = PortfolioBacktester(config)
@@ -26,8 +26,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from src.portfolio.metrics import PortfolioMetrics
-from src.portfolio.optimizer import PortfolioOptimizer
+from src.backtest.metrics import PortfolioMetrics
+from src.construction.optimizer import PortfolioOptimizer
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)

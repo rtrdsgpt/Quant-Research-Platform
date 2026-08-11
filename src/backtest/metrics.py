@@ -15,7 +15,7 @@ Additional metrics:
       Win Rate, Profit Factor, Total / Annualised Return, Volatility.
 
 Example:
-    >>> from src.portfolio.metrics import PortfolioMetrics
+    >>> from src.backtest.metrics import PortfolioMetrics
     >>> from src.utils.helpers import load_config
     >>> config = load_config()
     >>> pm = PortfolioMetrics(config)
