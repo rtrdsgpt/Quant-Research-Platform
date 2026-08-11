@@ -1,0 +1,139 @@
+# ============================================================
+# config.yaml — Master Configuration
+# Multi-Dimensional Return Forecasting and Portfolio Management
+# ============================================================
+
+# Stock universe
+stocks:
+  tickers:
+    - "RELIANCE.NS"
+    - "HDFCBANK.NS"
+    - "INFY.NS"
+    - "M&M.NS"
+    - "BHARTIARTL.NS"
+    - "HINDUNILVR.NS"
+  names:
+    RELIANCE.NS: "Reliance Industries"
+    HDFCBANK.NS: "HDFC Bank"
+    INFY.NS: "Infosys"
+    M&M.NS: "Mahindra & Mahindra"
+    BHARTIARTL.NS: "Bharti Airtel"
+    HINDUNILVR.NS: "Hindustan Unilever"
+
+# Date ranges
+dates:
+  start: "2020-01-01"
+  end: "2025-12-31"
+  train_end: "2025-09-30"
+  test_start: "2025-10-01"
+  test_end: "2025-12-31"
+
+# Data paths
+paths:
+  raw_data: "data/raw"
+  raw_market: "data/raw/market"
+  raw_fundamental: "data/raw/fundamental"
+  raw_macro: "data/raw/macro"
+  raw_sentiment: "data/raw/sentiment"
+  processed_data: "data/processed"
+  features_data: "data/features"
+  models_dir: "models"
+  reports_dir: "reports"
+  figures_dir: "reports/figures"
+  logs_dir: "logs"
+
+
+# Feature engineering
+features:
+  technical:
+    sma_windows: [5, 10, 20, 50]
+    ema_windows: [12, 26]
+    rsi_window: 14
+    macd_fast: 12
+    macd_slow: 26
+    macd_signal: 9
+    bollinger_window: 20
+    bollinger_std: 2
+    atr_window: 14
+    volume_ma_window: 20
+  returns:
+    log_return_lags: [1, 2, 3, 5, 10, 21]
+    volatility_windows: [5, 10, 21, 63]
+
+# Model configuration
+model:
+  type: "lightgbm"  # primary model
+  ensemble: true     # whether to use ensemble
+  ensemble_models: ["lightgbm", "xgboost", "ridge"]
+  walk_forward:
+    initial_train_days: 504   # ~2 years of trading days
+    validation_days: 63       # ~3 months
+    step_days: 21             # ~1 month step
+    expanding: true           # expanding window (vs sliding)
+  feature_selection:
+    method: "rfe"
+    n_features_to_select: 30
+    step: 5
+  lightgbm:
+    n_estimators: 500
+    learning_rate: 0.05
+    max_depth: 6
+    num_leaves: 31
+    min_child_samples: 20
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.1
+    reg_lambda: 0.1
+    early_stopping_rounds: 50
+  xgboost:
+    n_estimators: 500
+    learning_rate: 0.05
+    max_depth: 6
+    min_child_weight: 5
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.1
+    reg_lambda: 0.1
+    early_stopping_rounds: 50
+  ridge:
+    alpha: 1.0
+
+# Portfolio configuration
+portfolio:
+  method: "inverse_volatility"  # Options: equal_weight, inverse_volatility, mean_variance, max_sharpe
+  rebalance_frequency: "monthly"  # Options: daily, weekly, monthly
+  risk_free_rate: 0.065  # India 10-year bond yield approx
+  max_weight: 0.40  # Maximum weight per stock
+  min_weight: 0.05  # Minimum weight per stock
+  lookback_window: 63  # Trading days for covariance estimation
+  transaction_cost: 0.001  # 10 bps
+
+
+# Sentiment configuration
+sentiment:
+  model_name: "ProsusAI/finbert"
+  max_headlines_per_day: 10
+  batch_size: 16
+  # GNews.io API key (https://gnews.io) for real news. If set, used first.
+  # You can also set the GNEWS_API_KEY environment variable instead.
+  gnews_api_key: ""
+  # Finnhub API key (https://finnhub.io) for company news sentiment.
+  # You can also set the FINNHUB_API_KEY environment variable instead.
+  finnhub_api_key: ""
+  # Priority order for data sources: ['finnhub', 'gnews_io', 'gnews', 'synthetic']
+  news_source_priority: ['finnhub', 'gnews_io', 'gnews', 'synthetic']
+
+# Macro indicators Yahoo Finance tickers
+macro:
+  usdinr: "INR=X"
+  crude_oil: "CL=F"
+  gold: "GC=F"
+  india_10y: "^IRX"  # Proxy - actual India 10Y needs alternative source
+  nifty50: "^NSEI"
+  vix_india: "^INDIAVIX"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/pipeline.log"

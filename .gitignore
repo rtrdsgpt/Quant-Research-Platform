@@ -1,0 +1,56 @@
+# OS / editor cruft
+.DS_Store
+**/.DS_Store
+.Rhistory
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Secrets
+.env
+*.env
+
+# return-forecasting: data, models, logs, reports are pipeline-generated —
+# keep directory placeholders (.gitkeep) but not their contents.
+return-forecasting/data/**
+!return-forecasting/data/**/
+!return-forecasting/data/**/.gitkeep
+
+return-forecasting/models/**
+!return-forecasting/models/**/
+!return-forecasting/models/**/.gitkeep
+
+return-forecasting/logs/**
+!return-forecasting/logs/**/
+!return-forecasting/logs/**/.gitkeep
+
+# portfolio-replication: raw price data not committed (see README)
+portfolio-replication/data/raw/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# DVC
+/data/**
+!/data/**/.gitkeep
+.dvc/cache
+.dvc/tmp
+
+# Airflow
+airflow/logs/
+airflow.db
+airflow-webserver.pid
