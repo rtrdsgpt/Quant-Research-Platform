@@ -523,6 +523,81 @@ only once per ticker rather than ~16 times back to back, so they don't
 hit the same repeated-churn trigger, and there's no evidence (crash log
 or otherwise) implicating them.
 
+## 2026-08-12 — Second segfault: a test was silently corrupting real cached data
+
+**Problem:** after the RFE fix above, the repo owner reran the pipeline
+(`--train-only`, then `--backtest-only --benchmark`). The second crashed
+immediately -- `zsh: segmentation fault` right after "Loading trained
+models from disk...", inside `ReturnForecaster.load_models()` /
+`.predict()`, before any backtest logic ran.
+
+**Root cause, confirmed by inspection, not guessed:**
+`tests/test_data.py::TestMarketDataFetcher::test_fetch_all_stocks_returns_dict`
+mocks `yf.download` but constructs `MarketDataFetcher` with the **real**
+`config/config.yaml` -- whose `paths.raw_market` points at the real
+`data/raw/market/`. `fetch_all_stocks()` unconditionally persists its
+result to that path (`df.to_parquet(...)`), mocked or not. Every time
+the full test suite ran today (several times, verifying the RFE fix and
+the requirements split), this test silently overwrote the real
+2020-2025 OHLCV cache -- all 6 tickers -- with 100 rows of the test's
+synthetic `sample_ohlcv` fixture (`pd.bdate_range("2024-01-01",
+periods=100)`). Verified exactly: `data/raw/market/RELIANCE.NS_ohlcv.parquet`
+was dated and shaped precisely to match that fixture, not real data.
+
+That corruption cascaded: the next `--train-only` rebuilt 100-row
+feature matrices (down from the real run's 1486), walk-forward CV
+correctly refused to train on them (`Need at least 572 samples..., got
+100` -- logged for every ticker/every model, `weights: {}`), so
+`save_models()` wrote fresh `scaler.joblib`/`metadata.joblib` (fit on
+the bad 100-row data, always written) while leaving the **old**, real,
+`lightgbm.joblib`/`xgboost.joblib`/`ridge.joblib` files from an earlier
+run untouched (only written when a model actually finishes training).
+`load_models()` then paired old real models with a new, mismatched
+`selected_features` list from the bad run's metadata. Feeding a
+LightGBM/XGBoost Booster a different feature count than it was trained
+on is a documented native-crash mode, not a clean Python exception --
+exactly the segfault observed.
+
+**Fix:** rewrote the test to redirect `paths.raw_data`/`raw_market`/
+`processed_data` to a pytest `tmp_path` before constructing
+`MarketDataFetcher`, so it can never touch the real cache regardless of
+what's mocked. Verified with the actual repair, not just reasoning: ran
+the fixed test and confirmed via `stat` that
+`data/raw/market/RELIANCE.NS_ohlcv.parquet`'s mtime doesn't change.
+
+**Not fixed by this commit, and can't be from inside the test suite:**
+the real 2020-2025 market data on disk is already gone -- only a real
+`--data-only` or `--full` re-run (actual `yfinance` calls, not mocked)
+restores it. Told the repo owner this directly rather than trying to
+"patch" the now-inconsistent `models/`/`data/features/` state, which
+would have meant guessing at a correct combination instead of just
+regenerating one consistently.
+
+**Lesson applied going forward:** any test that constructs a fetcher/
+loader class with the `config` fixture and then calls a method that
+persists to disk needs an explicit path override, not just a mocked
+network call -- mocking the *data source* doesn't isolate the *write
+destination*. Checked `test_features.py` for the same pattern rather
+than assuming it was fine: `feature_pipeline.py`'s only `to_parquet`
+call lives inside `build_all_feature_matrices()`
+(`data/features/{ticker}_features.parquet`), and no test calls that
+method -- `TestFeaturePipeline.test_build_single_ticker` calls the
+single-ticker `build_feature_matrix()` instead, which doesn't write to
+disk. Confirmed safe, not left as an open question.
+
+**Also fixed while here:** `models/**` was already documented in
+`.gitignore` as generated/not-committed, but `git ls-files models/`
+showed the whole directory was tracked anyway -- added to git before
+that rule existed (likely the earliest "Ran a few models to test
+working" commit, made outside this session's control). About to commit
+this fix would have meant committing the *corrupted* scaler/metadata
+files from the bad 100-row run into git history. Untracked
+`models/` with `git rm -r --cached` (files stay on disk, `.gitignore`
+now actually takes effect for it) instead of either committing the
+corrupted artifacts or reverting them to old on-disk state via git,
+which would have left the working tree inconsistent with what a real
+retrain is about to produce anyway.
+
 ## 2026-08-11 — README/LICENSE brought in line with the rest of the portfolio
 
 Repo owner asked for the README, LICENSE, and "features" (clarified via

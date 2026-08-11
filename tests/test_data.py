@@ -86,12 +86,31 @@ class TestMarketDataFetcher:
         assert len(result) > 0
 
     @patch("src.data.market_data.yf.download")
-    def test_fetch_all_stocks_returns_dict(self, mock_download, config, sample_ohlcv):
-        """fetch_all_stocks should return a dict keyed by ticker."""
+    def test_fetch_all_stocks_returns_dict(self, mock_download, config, sample_ohlcv, tmp_path):
+        """fetch_all_stocks should return a dict keyed by ticker.
+
+        Redirects paths.raw_data/raw_market/processed_data to a pytest
+        tmp_path *before* constructing MarketDataFetcher -- fetch_all_stocks()
+        persists its (here, mocked) result to disk via those paths, and
+        without this override it silently overwrites the real
+        data/raw/market/*.parquet cache with 100 rows of this synthetic
+        fixture every time the suite runs (this is exactly what happened
+        and corrupted a real local training run -- see DECISIONS.md).
+        """
         from src.data.market_data import MarketDataFetcher
 
+        isolated_config = {
+            **config,
+            "paths": {
+                **config["paths"],
+                "raw_data": str(tmp_path / "raw"),
+                "raw_market": str(tmp_path / "raw" / "market"),
+                "processed_data": str(tmp_path / "processed"),
+            },
+        }
+
         mock_download.return_value = sample_ohlcv
-        fetcher = MarketDataFetcher(config)
+        fetcher = MarketDataFetcher(isolated_config)
 
         result = fetcher.fetch_all_stocks()
         assert isinstance(result, dict)
