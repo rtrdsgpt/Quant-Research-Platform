@@ -15,6 +15,20 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
+# torch, scikit-learn, and lightgbm/xgboost (via Homebrew libomp on macOS)
+# each bundle/link their own copy of libomp.dylib. Once real FinBERT
+# sentiment scoring (src/data/sentiment_data.py) imports torch, its
+# libomp.dylib is resident in the process for good -- when lightgbm/xgboost
+# later spin up their own OpenMP thread pools during walk-forward CV, two
+# different runtime copies are active at once, which segfaults (reproduced
+# and root-caused; see DECISIONS.md). KMP_DUPLICATE_LIB_OK alone silences
+# the friendlier abort but still crashed in testing -- OMP_NUM_THREADS=1
+# is required too (forces every OpenMP-using library, not just sklearn's
+# n_jobs, to skip thread-pool creation entirely). Harmless on Linux/Docker,
+# where this doesn't come up, and on machines with only one libomp.
+export KMP_DUPLICATE_LIB_OK=TRUE
+export OMP_NUM_THREADS=1
+
 if [ "${1:-}" = "api" ]; then
     shift
     exec python -m uvicorn src.api.main:app --host 0.0.0.0 --port "${PORT:-8000}" "$@"
