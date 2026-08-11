@@ -1,0 +1,11 @@
+======================================================================
+  PORTFOLIO CONSTRUCTION METHOD COMPARISON
+  (forward-test period; see config.dates.test_start/test_end)
+======================================================================
+
+                 Total_Return  Annualized_Return  Annualized_Volatility  Sharpe_Ratio  Sortino_Ratio  Maximum_Drawdown  Calmar_Ratio  Win_Rate  Profit_Factor  Hit_Ratio  Information_Ratio
+method                                                                                                                                                                                     
+equal_weight           0.0620             0.3134                 0.0827        2.5541         5.9071            0.0231       13.5677    0.5246         1.6708     0.4918                NaN
+mean_variance          0.0971             0.5049                 0.1039        3.3626         7.7596            0.0197       25.6014    0.5902         1.8299     0.5410                NaN
+alpha_hrp              0.0982             0.4941                 0.1119        3.0641         5.8530            0.0288       17.1677    0.5738         1.7728     0.6557                NaN
+alpha_markowitz        0.0975             0.4884                 0.0975        3.4630         7.7887            0.0228       21.3827    0.6230         1.8945     0.5902                NaN

@@ -159,7 +159,15 @@ def alpha_markowitz_weights(X_train, alpha, selected, benchmark_sector_weights, 
         Dict[ticker, float] weights, non-negative, summing to 1.
     """
     X_sel = X_train[selected].values
-    cov = np.cov(X_sel, rowvar=False) + config.RIDGE_EPS * np.eye(len(selected))
+    # np.cov on fewer than 2 observations (e.g. the first rebalance date
+    # in a short backtest window, before any lookback history has
+    # accumulated) is 0/0 -> NaN for every entry. Ridge epsilon alone
+    # doesn't fix that (NaN + anything is still NaN), and a NaN matrix
+    # fails cvxpy's quad_form symmetry check outright. Zero it first,
+    # matching hrp_weights' existing .fillna(0.0) -- same fallback
+    # (an all-zero covariance, regularized by the ridge term below).
+    cov = np.nan_to_num(np.cov(X_sel, rowvar=False), nan=0.0, posinf=0.0, neginf=0.0)
+    cov = cov + config.RIDGE_EPS * np.eye(len(selected))
     alpha_vec = np.array([float(alpha[t]) for t in selected])
     risk_aversion = config.ALPHA_RISK_AVERSION if risk_aversion is None else risk_aversion
 

@@ -62,6 +62,25 @@ class TestAlphaWeighting:
         assert all(w >= -1e-9 for w in weights.values())
         assert all(w <= weighting.config.MAX_STOCK_WEIGHT + 1e-6 for w in weights.values())
 
+    def test_alpha_markowitz_weights_handles_single_row_lookback(self, sample_alpha):
+        """A 1-row returns history (e.g. the first rebalance date in a
+        short backtest window, before any lookback has accumulated)
+        makes np.cov produce an all-NaN matrix. Ridge epsilon alone
+        doesn't fix that (NaN + anything is NaN); this used to blow up
+        with cvxpy's "Quadratic form matrices must be symmetric/
+        Hermitian" the first time the real backtest hit it."""
+        from src.construction import sectors, weighting
+
+        single_row = pd.DataFrame([[0.01, -0.02, 0.005, 0.0, 0.003, -0.001]], columns=TICKERS)
+        benchmark_sector_weights = sectors.compute_benchmark_sector_weights(TICKERS)
+
+        weights = weighting.alpha_markowitz_weights(
+            single_row, sample_alpha, TICKERS, benchmark_sector_weights
+        )
+        assert set(weights) == set(TICKERS)
+        assert abs(sum(weights.values()) - 1.0) < 1e-6
+        assert all(np.isfinite(w) for w in weights.values())
+
     def test_hrp_weights_sum_to_one(self, sample_returns):
         from src.construction import sectors, weighting
 

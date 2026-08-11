@@ -697,6 +697,47 @@ Linux/Docker and on any machine with only one `libomp` in play --
 this is a macOS-plus-Homebrew-libomp-specific interaction, not a
 platform-independent bug in this codebase's own logic.
 
+## 2026-08-12 — First full end-to-end run: real benchmark numbers, one real bug found
+
+With the segfault fixes above, `./run.sh --full --benchmark` completed
+end to end for the first time (581s) -- data collection, feature
+engineering, walk-forward CV + ensemble training for all 6 tickers,
+backtest, and the 4-way construction-method benchmark. Three of the four
+methods produced real numbers; `alpha_markowitz` failed with
+`ValueError: Quadratic form matrices must be symmetric/Hermitian`
+(caught gracefully by `benchmarks.py`'s existing per-method try/except,
+so it didn't take down the run -- just left one row blank).
+
+**Root cause:** `alpha_markowitz_weights` (`src/construction/weighting.py`)
+computes `cov = np.cov(X_sel, rowvar=False)` with no NaN handling.
+`np.cov` on fewer than 2 observations is `0/0` -> NaN for every entry;
+the log showed `lookback=1 days` for this specific call -- the very
+first rebalance date in the 61-day forward-test window has essentially
+no prior history within that window. Adding `RIDGE_EPS * eye` doesn't
+fix a NaN matrix (`NaN + anything` is still `NaN`), and a NaN matrix
+fails cvxpy's `quad_form` symmetry check outright.
+`hrp_weights`, right next to it in the same file, already guards against
+exactly this with `.fillna(0.0)` on its correlation/covariance -- I
+didn't carry that same guard over when writing the alpha-construction
+counterpart.
+
+**Fix:** `np.nan_to_num(..., nan=0.0, posinf=0.0, neginf=0.0)` before
+adding the ridge term, matching `hrp_weights`' existing fallback. Added
+a regression test reproducing the exact degenerate case (a single-row
+returns history) rather than just the happy path. Reran
+`--backtest-only --benchmark` for real (no retraining needed, models
+already saved from the successful full run) to confirm: all 4 methods
+now complete.
+
+**Results, read honestly:** checked into `reports/benchmark_comparison.txt`
+and the README. The forecast-driven methods do not cleanly dominate the
+naive baselines on this one 61-day/3-rebalance window --
+`alpha_hrp` (current default) has the best hit ratio (65.6%) but a worse
+Sharpe (3.06) than plain `mean_variance` (3.36); `alpha_markowitz` has
+the best Sharpe (3.46) but a middling hit ratio (59.0%). Reported as
+measured; not spun into "the merge improved performance" when the
+sample is 3 rebalance points.
+
 ## 2026-08-11 — README/LICENSE brought in line with the rest of the portfolio
 
 Repo owner asked for the README, LICENSE, and "features" (clarified via

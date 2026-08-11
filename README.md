@@ -28,44 +28,37 @@ independent work, done after both courses concluded.
 
 ## Results
 
-**One real, measured number** — everything else below is either a
-historical run under a construction method that is no longer the
-default, or explicitly marked as not yet run, rather than filled in with
-a plausible-looking guess.
+Forward-test, Oct–Dec 2025 (61 trading days, 3 monthly rebalances) — real
+output of `src/backtest/benchmarks.py`, checked in at
+[`reports/benchmark_comparison.txt`](reports/benchmark_comparison.txt):
 
-A forward-test (Oct–Dec 2025) under the original `inverse_volatility`
-construction method — real output of `PortfolioMetrics.compute_all_metrics`,
-checked in at [`reports/performance_report.txt`](reports/performance_report.txt):
+| Method | Total Return | Ann. Return | Ann. Vol | Sharpe | Sortino | Max DD | Calmar | Hit Ratio |
+|---|---|---|---|---|---|---|---|---|
+| `equal_weight` | 6.20% | 31.34% | 8.27% | 2.554 | 5.907 | 2.31% | 13.57 | 49.18% |
+| `mean_variance` | 9.71% | 50.49% | 10.39% | 3.363 | 7.760 | 1.97% | 25.60 | 54.10% |
+| `alpha_hrp` (current default) | 9.82% | 49.41% | 11.19% | 3.064 | 5.853 | 2.88% | 17.17 | **65.57%** |
+| `alpha_markowitz` | 9.75% | 48.84% | 9.75% | **3.463** | 7.789 | 2.28% | 21.38 | 59.02% |
 
-| Metric | Value |
-|---|---|
-| Annualised Return | 28.0916% |
-| Annualised Volatility | 8.0649% |
-| Sharpe Ratio | 2.3049 |
-| Sortino Ratio | 5.3842 |
-| Maximum Drawdown | 2.6950% |
-| Hit Ratio | 54.0984% |
-| Calmar Ratio | 10.4238 |
-
-(The source README this came from had a copy-paste bug — Max Drawdown and
-Hit Ratio were both shown as `2.3049`, the Sharpe ratio's value. Fixed
-here; see [`DECISIONS.md`](DECISIONS.md).)
-
-**Not yet run in this repo: a benchmark comparison under the current
-default** (`portfolio.method: alpha_hrp` — the forecast-driven
-construction this merge actually added, see [Architecture](#architecture)
-below) **against equal-weight / mean-variance / alpha_markowitz.** The
-table above predates that default changing. `src/backtest/benchmarks.py`
-+ `main.py --benchmark` exist specifically to produce it —
+**Read honestly, not spun**: the forecast-driven methods (`alpha_hrp`,
+`alpha_markowitz`) don't cleanly dominate the naive baselines here.
+`alpha_hrp` — the current default — has the best hit ratio of the four
+but a *worse* Sharpe than plain `mean_variance`; `alpha_markowitz` has
+the best Sharpe but a middling hit ratio. Three rebalances over 61 days
+is a small sample — this is one forward-test window on 6 stocks, not a
+statistically powered claim that either forecast-driven method beats
+equal-weight/mean-variance in general. Reproduce or extend it:
 
 ```bash
 ./run.sh --backtest-only --benchmark   # writes reports/benchmark_comparison.txt
 ```
 
-— but generating it requires a full local run of the pipeline (data
-fetch + walk-forward CV training), which hasn't completed end-to-end in
-this environment yet. This section gets updated with that table once it
-has, not before.
+A separate, older forward-test under the original `inverse_volatility`
+construction method (no longer the default) is also checked in at
+[`reports/performance_report.txt`](reports/performance_report.txt): Sharpe 2.3049,
+Sortino 5.3842, Max Drawdown 2.6950%, Hit Ratio 54.0984%, Calmar 10.4238.
+(The source README this came from had a copy-paste bug — Max Drawdown and
+Hit Ratio were both shown as `2.3049`, the Sharpe ratio's value. Fixed
+here; see [`DECISIONS.md`](DECISIONS.md).)
 
 ## Architecture
 
