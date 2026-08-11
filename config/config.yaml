@@ -150,6 +150,13 @@ logging:
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   file: "logs/pipeline.log"
 
+# MLflow tracking (opt-in via `python main.py --train-only --mlflow`).
+# sqlite, not a plain ./mlruns file store -- MLflow 3.x deprecated the
+# file-store backend in favour of a database backend.
+mlflow:
+  tracking_uri: "sqlite:///mlflow.db"
+  experiment_name: "quant-research-platform"
+
 # ------------------------------------------------------------------
 # Portfolio construction (from the portfolio-replication project).
 # Set portfolio.method above to "alpha_markowitz" or "alpha_hrp" to
