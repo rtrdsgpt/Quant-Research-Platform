@@ -162,7 +162,14 @@ class ReturnForecaster:
             reg_alpha=lgb_cfg.get("reg_alpha", 0.1),
             reg_lambda=lgb_cfg.get("reg_lambda", 0.1),
             verbose=-1,
-            n_jobs=-1,
+            # NOT -1: this model is fit once per walk-forward CV fold
+            # (44+ sequential fits for this project's date range) plus
+            # once more for the final fit -- n_jobs=-1 means each of
+            # those fits spins up a fresh full-core OpenMP thread pool
+            # back to back, which is the same documented LightGBM
+            # segfault trigger already fixed once for RFE's estimator
+            # (see feature_selection.py) and missed here the first time.
+            n_jobs=1,
             random_state=42,
         )
 
@@ -190,7 +197,10 @@ class ReturnForecaster:
             reg_alpha=xgb_cfg.get("reg_alpha", 0.1),
             reg_lambda=xgb_cfg.get("reg_lambda", 0.1),
             verbosity=0,
-            n_jobs=-1,
+            # See the matching comment in _create_lightgbm() -- same
+            # repeated-fit-across-CV-folds risk applies to XGBoost's
+            # OpenMP thread pool.
+            n_jobs=1,
             random_state=42,
         )
 

@@ -598,6 +598,54 @@ corrupted artifacts or reverting them to old on-disk state via git,
 which would have left the working tree inconsistent with what a real
 retrain is about to produce anyway.
 
+## 2026-08-12 — Third segfault: the RFE fix was necessary but incomplete
+
+**Problem:** with the data-corruption bug fixed, the repo owner reran
+`./run.sh --full --benchmark` for real (1486-row real data confirmed in
+the log this time, RFE completing successfully -- the earlier fix
+holds). It still crashed, later, mid-Stage-3: right after "Starting
+walk-forward CV — 44 folds, 1486 samples" for the ensemble's LightGBM
+model, with an `LGBMDeprecationWarning` about `eval_set` logged
+immediately before the segfault.
+
+**Root cause: the same bug, missed in a second location the first time.**
+The 2026-08-12 segfault entry above fixed `n_jobs=-1` on the RFE-internal
+LightGBM estimator, but reasoned (incorrectly, without checking) that
+the *ensemble* LightGBM/XGBoost models in `_create_lightgbm()`/
+`_create_xgboost()` "each fit only once per ticker" and so weren't at
+risk. They don't -- `train_ensemble()` calls
+`WalkForwardValidator.cross_validate()`, which clones and fits the model
+once per fold (44 folds for this project's 2020-2025 range) plus once
+more for the final fit. Both factories still had `n_jobs=-1`, so the
+exact same repeated-OpenMP-thread-pool-churn crash was still live, just
+in the larger, more central code path (every ensemble member, every
+ticker) rather than the smaller RFE one.
+
+**Fix:** `n_jobs=-1` -> `1` in both `_create_lightgbm()` and
+`_create_xgboost()` (`src/models/forecaster.py`). Verified against the
+exact scenario that crashed, not a smaller proxy: ran
+`ReturnForecaster.train_ensemble()` directly on the real, now-restored
+`data/features/RELIANCE.NS_features.parquet` (1486 rows) -- full 44-fold
+walk-forward CV for LightGBM, XGBoost, Ridge, and the SARIMAX benchmark,
+plus final fits, all completed and produced real ensemble weights
+(`{'lightgbm': 0.372, 'xgboost': 0.318, 'ridge': 0.310}`) with no crash.
+
+**Corrected assumption, stated plainly:** the earlier entry's claim that
+non-RFE model instantiations were safe was wrong, and wrong specifically
+because it was reasoned about instead of checked against how
+`train_ensemble()` actually calls `cross_validate()`. Grepped for every
+remaining `n_jobs=-1` in `src/` rather than assuming the fix above is
+now complete: one more exists, `LassoCV(..., n_jobs=-1)` in
+`src/construction/selection.py` (the legacy large-universe replication
+mode's LASSO selection, `scripts/legacy_replication.py` -- not part of
+the default pipeline, not exercised by anything that crashed). Left it
+alone rather than reflexively changing it: it's scikit-learn's joblib-based
+`n_jobs`, which parallelizes CV folds *within* one `LassoCV.fit()` call,
+not LightGBM/XGBoost's native OpenMP thread pool respawned across many
+sequential outer-loop fits -- a different mechanism, not the same bug.
+Noting this rather than silently leaving it unaddressed, in case the
+legacy mode gets exercised for real later and something similar shows up.
+
 ## 2026-08-11 — README/LICENSE brought in line with the rest of the portfolio
 
 Repo owner asked for the README, LICENSE, and "features" (clarified via
